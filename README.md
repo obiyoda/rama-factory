@@ -55,10 +55,12 @@ devenv tasks run rama:validate
 devenv tasks run rama:simulate
 devenv tasks run swarm:plan
 devenv tasks run swarm:config
+devenv tasks run assets:build
 clojure -M:mcp
 ```
 
 `devenv up` starts the dogfooded docs app at `http://localhost:3000`.
+`assets:build` compiles the Vite/Tailwind/Basecoat asset entry.
 
 Starter and seed commands:
 
@@ -66,6 +68,8 @@ Starter and seed commands:
 clojure -M:factory new invoice-app
 clojure -M:factory add auth --from factory/seeds/auth --target invoice-app
 cd invoice-app
+npm install
+npm run assets:build
 devenv test
 ```
 
@@ -77,6 +81,10 @@ clojure -M:factory add factory-dashboard --from factory/seeds/factory-dashboard 
 cd factory-floor
 devenv up
 ```
+
+Generated apps run a Clojure web process and a Vite asset process under
+`devenv up`. The dashboard uses `RAMA_FACTORY_VITE_ORIGIN`, defaulting to
+`http://localhost:5173`, to load the Vite entry during local development.
 
 From this repository, the auth seed can be validated with:
 
@@ -102,6 +110,8 @@ clojure -M:factory mcp-tools
 clojure -M:factory queue
 clojure -M:factory accept architect
 clojure -M:factory complete architect <handoff-id>
+npm run assets:dev
+npm run assets:build
 clojure -M:mcp
 clojure -M:docs
 clojure -M:test
@@ -163,6 +173,6 @@ This PoC deliberately keeps the first useful core small:
 - It can install a Rama-backed factory dashboard seed that shows agent/factory events, handoffs, artifacts, validation gates, and timelines.
 - It exposes a local stdio MCP server so MCP-capable agents can discover personas, load skills, validate the factory, and move work through durable handoff queues.
 - MCP create/claim/complete calls append durable events under `.rama-factory/events`, which the factory dashboard seed can ingest into its Rama module.
-- Factory-facing UI screens use Basecoat UI defaults: plain HTML, shadcn-style classes, and no React requirement.
+- Factory-facing UI screens use Basecoat UI defaults through a Vite/Tailwind asset pipeline: plain HTML, shadcn-style classes, and no React requirement.
 
 The next practical increment is adding `swarm:prepare` so role worktrees can operate on starter apps and seeds.

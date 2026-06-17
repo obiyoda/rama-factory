@@ -17,11 +17,13 @@ web runtime, role-bound agents, and extension ecosystem.
    - Role or handoff work: `references/roles.md`
    - Rama module or blueprint work: `references/rama.md`
    - Extension or ecosystem work: `references/extensions.md`
+   - REPL, preview, or frontend asset work: `references/dev-loop.md`
 3. Preserve the layer boundaries:
    - devenv owns shell, tools, services, processes, tests, and task names.
    - Clojure owns factory logic, manifests, validation, and generators.
    - Rama owns durable state, depots, PStates, topologies, queries, and replay.
    - Zodiac owns the default HTTP runtime.
+   - Vite/Tailwind/Basecoat own compiled UI assets for factory screens.
    - Extensions package code, blueprints, validators, tests, docs, and skills.
 4. Prefer EDN manifests for structured factory data.
 5. Add validation before adding automation that mutates git, worktrees, state, or
@@ -45,6 +47,7 @@ Use these in order as the work requires:
 devenv tasks run rama:validate
 devenv tasks run swarm:plan
 devenv tasks run swarm:config
+devenv tasks run assets:build
 devenv shell -- clojure -M:test
 devenv test
 ```

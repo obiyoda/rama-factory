@@ -4,4 +4,7 @@ runs/
 .devenv/
 .direnv/
 target/
+node_modules/
+resources/public/assets/
+resources/public/.vite/
 *.class

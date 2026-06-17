@@ -41,6 +41,18 @@ in
     exec = "clojure -M:mcp";
   };
 
+  tasks."assets:install" = {
+    exec = "npm install";
+  };
+
+  tasks."assets:dev" = {
+    exec = "npm install && npm run assets:dev";
+  };
+
+  tasks."assets:build" = {
+    exec = "npm install && npm run assets:build";
+  };
+
   tasks."rama:test" = {
     exec = "clojure -M:test";
   };
@@ -81,6 +93,8 @@ in
     echo "  devenv tasks run rama:simulate    # generate the sample run"
     echo "  devenv tasks run swarm:plan       # inspect role worktrees"
     echo "  devenv tasks run swarm:config     # render SwarmForge window config"
+    echo "  devenv tasks run assets:dev       # run Vite/Tailwind assets"
+    echo "  devenv tasks run assets:build     # compile Vite/Tailwind assets"
     echo "  clojure -M:mcp                    # run the local stdio MCP server"
   '';
 

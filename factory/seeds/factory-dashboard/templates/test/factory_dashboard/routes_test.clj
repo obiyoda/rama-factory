@@ -6,7 +6,8 @@
   (let [response (routes/dashboard-page {:factory-dashboard/demo? true})]
     (is (= 200 (:status response)))
     (is (re-find #"Factory Floor" (:body response)))
-    (is (re-find #"basecoat-css@0.3.11" (:body response)))
+    (is (re-find #"/@vite/client" (:body response)))
+    (is (re-find #"/assets/app.js" (:body response)))
     (is (re-find #"class=\"card\"" (:body response)))
     (is (re-find #"class=\"table\"" (:body response)))))
 

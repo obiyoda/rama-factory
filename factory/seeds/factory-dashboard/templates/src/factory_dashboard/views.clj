@@ -1,11 +1,19 @@
 (ns {{app_ns}}.factory-dashboard.views
   (:require [clojure.string :as str]))
 
-(def basecoat-css
-  "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/basecoat.cdn.min.css")
+(def default-vite-origin
+  "http://localhost:5173")
 
-(def basecoat-js
-  "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/js/all.min.js")
+(defn- vite-origin
+  []
+  (or (System/getenv "RAMA_FACTORY_VITE_ORIGIN")
+      default-vite-origin))
+
+(defn- asset-tags
+  []
+  (let [origin (vite-origin)]
+    (str "<script type=\"module\" src=\"" origin "/@vite/client\"></script>"
+         "<script type=\"module\" src=\"" origin "/assets/app.js\"></script>")))
 
 (defn- escape-html
   [s]
@@ -58,8 +66,7 @@
          "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
          "<meta http-equiv=\"refresh\" content=\"3\">"
          "<title>Factory Floor</title>"
-         "<link rel=\"stylesheet\" href=\"" basecoat-css "\">"
-         "<script src=\"" basecoat-js "\" defer></script>"
+         (asset-tags)
          "</head><body class=\"min-h-screen bg-background text-foreground\">"
          "<main class=\"factory-dashboard mx-auto flex max-w-7xl flex-col gap-6 p-6\">"
          "<header class=\"flex flex-col gap-4 border-b pb-5 md:flex-row md:items-end md:justify-between\">"

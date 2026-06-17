@@ -1,0 +1,5 @@
+@import "tailwindcss" source("../src");
+@source "../apps";
+@source "../factory";
+@source "../docs";
+@import "basecoat-css";

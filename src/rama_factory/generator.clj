@@ -56,6 +56,23 @@
     (spit target-file content)
     (.getPath target-file)))
 
+(defn- copy-file!
+  [source target {:keys [force?]}]
+  (let [source-file (io/file source)
+        target-file (io/file target)]
+    (when (and (.exists target-file) (not force?))
+      (throw (ex-info "Refusing to overwrite existing file."
+                      {:path (.getPath target-file)})))
+    (ensure-parent! target-file)
+    (io/copy source-file target-file)
+    (.getPath target-file)))
+
+(defn- copy-root-file-if-present!
+  [root filename opts]
+  (let [source (io/file filename)]
+    (when (.exists source)
+      (copy-file! source (file root filename) opts))))
+
 (defn- render
   [template replacements]
   (reduce-kv
@@ -91,8 +108,8 @@
         "```bash\n"
         "devenv shell\n"
         "devenv up\n"
-        "npm install\n"
-        "npm run assets:build\n"
+        "pnpm install --frozen-lockfile\n"
+        "pnpm run assets:build\n"
         "devenv test\n"
         "clojure -M:test\n"
         "```\n\n"
@@ -103,6 +120,7 @@
         "  \"name\": \"" name "\",\n"
         "  \"private\": true,\n"
         "  \"type\": \"module\",\n"
+        "  \"packageManager\": \"pnpm@10.8.1\",\n"
         "  \"scripts\": {\n"
         "    \"assets:dev\": \"vite --host 127.0.0.1 --port 5173\",\n"
         "    \"assets:build\": \"vite build\",\n"
@@ -167,16 +185,16 @@
         "{\n"
         "  languages.clojure.enable = true;\n"
         "  languages.clojure.lsp.enable = true;\n\n"
-        "  packages = [ pkgs.curl pkgs.git pkgs.nodejs pkgs.ripgrep pkgs.zsh ];\n\n"
+        "  packages = [ pkgs.curl pkgs.git pkgs.nodejs pkgs.pnpm pkgs.ripgrep pkgs.zsh ];\n\n"
         "  env.RAMA_FACTORY_APP = \"" name "\";\n"
         "  env.RAMA_FACTORY_VITE_ORIGIN = \"http://localhost:5173\";\n\n"
-        "  tasks.\"assets:install\".exec = \"npm install\";\n"
-        "  tasks.\"assets:dev\".exec = \"npm install && npm run assets:dev\";\n"
-        "  tasks.\"assets:build\".exec = \"npm install && npm run assets:build\";\n\n"
+        "  tasks.\"assets:install\".exec = \"NODE_OPTIONS=--no-warnings pnpm install --frozen-lockfile\";\n"
+        "  tasks.\"assets:dev\".exec = \"NODE_OPTIONS=--no-warnings pnpm install --frozen-lockfile && pnpm run assets:dev\";\n"
+        "  tasks.\"assets:build\".exec = \"NODE_OPTIONS=--no-warnings pnpm install --frozen-lockfile && pnpm run assets:build\";\n\n"
         "  tasks.\"app:test\".exec = \"clojure -M:test\";\n"
         "  tasks.\"app:serve\".exec = \"clojure -M:dev ${builtins.toString appPort}\";\n\n"
         "  processes.assets = {\n"
-        "    exec = \"npm install && npm run assets:dev\";\n"
+        "    exec = \"NODE_OPTIONS=--no-warnings pnpm install --frozen-lockfile && pnpm run assets:dev\";\n"
         "    ready.http.get = { port = 5173; path = \"/assets/app.js\"; };\n"
         "  };\n\n"
         "  processes.web = {\n"
@@ -340,11 +358,14 @@
   ([app-name target-dir opts]
    (let [app (app-config app-name)
          root (io/file target-dir)
-         written (for [[path content] (starter-files app)]
-                   (write-text! (file root path) content opts))]
+         written (mapv (fn [[path content]]
+                         (write-text! (file root path) content opts))
+                       (starter-files app))
+         lockfile (copy-root-file-if-present! root "pnpm-lock.yaml" opts)]
      {:app app
       :root (.getPath root)
-      :written (vec written)})))
+      :written (cond-> written
+                 lockfile (conj lockfile))})))
 
 (defn read-app-config
   [root]

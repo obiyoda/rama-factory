@@ -23,6 +23,7 @@ Use these as the default local workflow:
 ```bash
 devenv up
 devenv tasks run assets:build
+pnpm run assets:dev
 devenv shell -- clojure -M:test
 ```
 
@@ -35,6 +36,9 @@ http://localhost:5173
 
 Dashboard views load assets from `RAMA_FACTORY_VITE_ORIGIN` when set, otherwise
 from `http://localhost:5173`.
+
+Use pnpm for JavaScript dependencies. `devenv` includes `pkgs.pnpm`, generated
+apps include `pnpm-lock.yaml`, and asset tasks use frozen pnpm installs.
 
 ## UI Defaults
 

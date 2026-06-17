@@ -68,8 +68,8 @@ Starter and seed commands:
 clojure -M:factory new invoice-app
 clojure -M:factory add auth --from factory/seeds/auth --target invoice-app
 cd invoice-app
-npm install
-npm run assets:build
+pnpm install --frozen-lockfile
+pnpm run assets:build
 devenv test
 ```
 
@@ -110,8 +110,8 @@ clojure -M:factory mcp-tools
 clojure -M:factory queue
 clojure -M:factory accept architect
 clojure -M:factory complete architect <handoff-id>
-npm run assets:dev
-npm run assets:build
+pnpm run assets:dev
+pnpm run assets:build
 clojure -M:mcp
 clojure -M:docs
 clojure -M:test

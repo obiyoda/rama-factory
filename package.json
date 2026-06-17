@@ -2,6 +2,7 @@
   "name": "rama-factory",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.8.1",
   "scripts": {
     "assets:dev": "vite --host 127.0.0.1 --port 5173",
     "assets:build": "vite build",

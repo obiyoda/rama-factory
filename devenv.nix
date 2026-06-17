@@ -12,6 +12,7 @@ in
     pkgs.curl
     pkgs.git
     pkgs.nodejs
+    pkgs.pnpm
     pkgs.ripgrep
     pkgs.tmux
     pkgs.zsh
@@ -42,15 +43,15 @@ in
   };
 
   tasks."assets:install" = {
-    exec = "npm install";
+    exec = "NODE_OPTIONS=--no-warnings pnpm install --frozen-lockfile";
   };
 
   tasks."assets:dev" = {
-    exec = "npm install && npm run assets:dev";
+    exec = "NODE_OPTIONS=--no-warnings pnpm install --frozen-lockfile && pnpm run assets:dev";
   };
 
   tasks."assets:build" = {
-    exec = "npm install && npm run assets:build";
+    exec = "NODE_OPTIONS=--no-warnings pnpm install --frozen-lockfile && pnpm run assets:build";
   };
 
   tasks."rama:test" = {

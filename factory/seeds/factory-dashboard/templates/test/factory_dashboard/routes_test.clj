@@ -2,13 +2,13 @@
   (:require [clojure.test :refer [deftest is]]
             [{{app_ns}}.factory-dashboard.routes :as routes]))
 
-(deftest dashboard-page-renders-demo-snapshot
+(deftest dashboard-page-renders-factory-floor
   (let [response (routes/dashboard-page {})]
     (is (= 200 (:status response)))
     (is (re-find #"Factory Floor" (:body response)))
-    (is (re-find #"validation-passed" (:body response)))))
+    (is (re-find #"Source:" (:body response)))))
 
 (deftest api-snapshot-renders-edn
   (let [response (routes/api-snapshot {})]
     (is (= 200 (:status response)))
-    (is (re-find #":validation-passed" (:body response)))))
+    (is (re-find #":counts" (:body response)))))

@@ -19,6 +19,7 @@
   {:run {:run-id "demo-auth-run"
          :status "passed"
          :message "InProcessCluster tests passed."}
+   :source :demo
    :timeline (mapv (fn [{:keys [event-id] :as event}]
                      [event-id
                       (-> event
@@ -31,11 +32,31 @@
             :artifact-written 1
             :validation-passed 1}})
 
+(defn- request-clients
+  [request]
+  (or (:factory-dashboard/clients request)
+      (dashboard/local-clients)))
+
+(defn- empty-live-snapshot?
+  [snapshot ingest]
+  (and (zero? (:event-count ingest))
+       (nil? (:run snapshot))
+       (empty? (:timeline snapshot))))
+
 (defn snapshot
   [request]
-  (if-let [clients (:factory-dashboard/clients request)]
-    (dashboard/snapshot clients (or (get-in request [:params "run-id"])
-                                    "demo-auth-run"))
+  (if-let [clients (request-clients request)]
+    (let [ingest (dashboard/ingest-local-events! clients)
+          run-id (or (get-in request [:params "run-id"])
+                     (:run-id ingest)
+                     "demo-auth-run")
+          live (assoc (dashboard/snapshot clients run-id)
+                      :source :live
+                      :observed-events (:event-count ingest)
+                      :ingested-events (:ingested ingest))]
+      (if (empty-live-snapshot? live ingest)
+        (demo-snapshot)
+        live))
     (demo-snapshot)))
 
 (defn dashboard-page

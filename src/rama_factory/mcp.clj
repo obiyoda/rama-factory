@@ -3,6 +3,7 @@
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
             [clojure.string :as str]
+            [rama-factory.events :as events]
             [rama-factory.handoff :as handoff]
             [rama-factory.io :as fio]
             [rama-factory.model :as model]
@@ -227,6 +228,80 @@
           (throw (ex-info "Unknown factory persona."
                           {:persona-id persona-id}))))))
 
+(defn- payload-value
+  [payload key]
+  (or (get payload key)
+      (get payload (name key))
+      (get payload (str ":" (name key)))))
+
+(defn- persona-event-fields
+  [persona]
+  {:persona-id (or (some-> (:persona/id persona) name) "system")
+   :persona-name (or (:persona/name persona) "System")})
+
+(defn- handoff-event-base
+  [{:keys [id task payload persona]} role]
+  (let [payload (or payload {})
+        persona-fields (persona-event-fields persona)]
+    (merge {:run-id (or (payload-value payload :run-id)
+                        events/default-run-id)
+            :work-id (or (payload-value payload :work-id) id)
+            :role (name role)
+            :phase (or (payload-value payload :phase) task "handoff")
+            :artifact (or (payload-value payload :artifact) "")
+            :message (or (payload-value payload :message) task "")}
+           persona-fields)))
+
+(defn- record-work-created!
+  [ctx handoff]
+  (events/append!
+   (:state-dir ctx)
+   (merge (handoff-event-base handoff (:recipient handoff))
+          {:event-id (str "handoff-created-" (:id handoff))
+           :event-type :handoff-created
+           :status "queued"})))
+
+(defn- record-work-claimed!
+  [ctx handoff role claimed-by]
+  (events/append!
+   (:state-dir ctx)
+   (merge (handoff-event-base (cond-> handoff
+                                claimed-by (assoc :persona claimed-by))
+                              role)
+          {:event-id (str "handoff-accepted-" (:id handoff))
+           :event-type :handoff-accepted
+           :status "in-process"})))
+
+(defn- failed-status?
+  [status]
+  (#{"failed" "fail" "error" "validation-failed"} (str/lower-case (str status))))
+
+(defn- record-work-completed!
+  [ctx handoff role result]
+  (let [completed-by (:completed-by result)
+        status (:status result)
+        base (handoff-event-base (cond-> handoff
+                                   completed-by (assoc :persona completed-by))
+                                 role)
+        completion (merge base
+                          {:event-id (str "work-completed-" (:id handoff))
+                           :event-type :work-completed
+                           :status (or status "done")
+                           :message (or (:notes result) (:message base))})
+        validation (when (:validation result)
+                     (merge base
+                            {:event-id (str (if (failed-status? status)
+                                              "validation-failed-"
+                                              "validation-passed-")
+                                            (:id handoff))
+                             :event-type (if (failed-status? status)
+                                           :validation-failed
+                                           :validation-passed)
+                             :status (if (failed-status? status) "failed" "passed")
+                             :message (:validation result)}))]
+    (events/append-many! (:state-dir ctx) (cond-> [completion]
+                                            validation (conj validation)))))
+
 (defn- ensure-handoff-state!
   [ctx]
   (handoff/ensure-role-dirs! (:state-dir ctx) (roles ctx)))
@@ -275,15 +350,18 @@
         persona (persona-ref ctx (get args "persona_id"))
         payload (or (get args "payload") {})]
     (ensure-handoff-state! ctx)
-    {:handoff (handoff/deliver!
-               (:state-dir ctx)
-               {:from from
-                :to to
-                :priority (parse-priority (get args "priority"))
-                :type :artifact-handoff
-                :task (required-arg args "task")
-                :persona persona
-                :payload payload})}))
+    (let [handoff (handoff/deliver!
+                   (:state-dir ctx)
+                   {:from from
+                    :to to
+                    :priority (parse-priority (get args "priority"))
+                    :type :artifact-handoff
+                    :task (required-arg args "task")
+                    :persona persona
+                    :payload payload})
+          event (record-work-created! ctx (assoc handoff :recipient to))]
+      {:handoff handoff
+       :event event})))
 
 (defn- claim-next-work
   [ctx args]
@@ -292,10 +370,12 @@
     (ensure-handoff-state! ctx)
     (if-let [accepted (handoff/accept-next! (:state-dir ctx) role)]
       (let [work (cond-> accepted
-                   claimed-by (assoc :claimed-by claimed-by))]
+                   claimed-by (assoc :claimed-by claimed-by))
+            event (record-work-claimed! ctx work role claimed-by)]
         (when claimed-by
           (fio/write-edn! (:file accepted) (dissoc work :file)))
-        {:work work})
+        {:work work
+         :event event})
       {:work nil
        :message "NO_TASK"})))
 
@@ -308,10 +388,13 @@
                  (get args "validation") (assoc :validation (get args "validation"))
                  (get args "notes") (assoc :notes (get args "notes"))
                  completed-by (assoc :completed-by completed-by))]
-    {:work (handoff/complete! (:state-dir ctx)
-                              role
-                              (required-arg args "handoff_id")
-                              result)}))
+    (let [completed (handoff/complete! (:state-dir ctx)
+                                       role
+                                       (required-arg args "handoff_id")
+                                       result)
+          events (record-work-completed! ctx completed role result)]
+      {:work completed
+       :events events})))
 
 (defn- validate-factory
   [ctx _args]

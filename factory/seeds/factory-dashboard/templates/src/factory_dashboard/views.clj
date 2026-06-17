@@ -17,12 +17,20 @@
        "</tr>"))
 
 (defn dashboard
-  [{:keys [run timeline counts]}]
+  [{:keys [run timeline counts source observed-events ingested-events]}]
   (let [timeline (or timeline [])
         counts (or counts {})]
-    (str "<main class=\"factory-dashboard\">"
+    (str "<!doctype html><html><head>"
+         "<meta charset=\"utf-8\">"
+         "<meta http-equiv=\"refresh\" content=\"3\">"
+         "<title>Factory Floor</title>"
+         "</head><body>"
+         "<main class=\"factory-dashboard\">"
          "<h1>Factory Floor</h1>"
          "<p>Rama-backed view of agent runs, handoffs, artifacts, and validation gates.</p>"
+         "<p>Source: " (escape-html (name (or source :unknown)))
+         " events. Observed: " (or observed-events 0)
+         ". Newly ingested: " (or ingested-events 0) ".</p>"
          "<section><h2>Current run</h2>"
          "<dl>"
          "<dt>Run</dt><dd>" (escape-html (:run-id run)) "</dd>"
@@ -37,4 +45,4 @@
          "<thead><tr><th>ID</th><th>Event</th><th>Persona</th><th>Role</th><th>Phase</th><th>Status</th><th>Message</th></tr></thead>"
          "<tbody>" (apply str (map event-row timeline)) "</tbody>"
          "</table></section>"
-         "</main>")))
+         "</main></body></html>")))

@@ -25,4 +25,5 @@
         (testing "event counts are maintained as fast projections"
           (is (= 1 (get-in snapshot [:counts :run-created])))
           (is (= 1 (get-in snapshot [:counts :handoff-created])))
-          (is (= 1 (get-in snapshot [:counts :validation-passed]))))))))
+          (is (= 1 (get-in snapshot [:counts :validation-passed])))
+          (is (= 0 (get-in snapshot [:counts :work-completed]))))))))

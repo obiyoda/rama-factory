@@ -14,6 +14,11 @@ dashboard demonstrates that principle directly:
 agent events -> Rama depot -> materialized factory state -> dashboard/API
 ```
 
+For local development, MCP tools append durable EDN events under
+`.rama-factory/events`. A copied dashboard app can ingest those files into its
+local Rama dashboard module and fall back to demo data when the event log is
+empty.
+
 ## Event Model
 
 The first event types are:
@@ -40,3 +45,10 @@ The Rama module materializes:
 - event counts
 
 The default dashboard route is `/factory`.
+
+The copied app looks for event logs in this order:
+
+- `RAMA_FACTORY_EVENT_DIR`
+- `RAMA_FACTORY_STATE_DIR/events`
+- `.rama-factory/events`
+- `../.rama-factory/events`

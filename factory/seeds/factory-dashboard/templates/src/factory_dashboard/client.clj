@@ -1,7 +1,13 @@
 (ns {{app_ns}}.factory-dashboard.client
   (:use [com.rpl.rama]
         [com.rpl.rama.path])
-  (:require [{{app_ns}}.factory-dashboard.module :as module]))
+  (:require [clojure.edn :as edn]
+            [clojure.java.io :as io]
+            [clojure.string :as str]
+            [{{app_ns}}.factory-dashboard.module :as module]))
+
+(defonce local-system (atom nil))
+(defonce ingested-event-ids (atom #{}))
 
 (defn module-name
   []
@@ -23,21 +29,88 @@
         {acked "factory-dashboard"} (foreign-append! (:factory-events-depot clients) event)]
     acked))
 
+(defn- event-log-dir-candidates
+  []
+  (let [event-dir (System/getenv "RAMA_FACTORY_EVENT_DIR")
+        state-dir (System/getenv "RAMA_FACTORY_STATE_DIR")]
+    (->> [event-dir
+          (when-not (str/blank? state-dir)
+            (str state-dir "/events"))
+          ".rama-factory/events"
+          "../.rama-factory/events"]
+         (remove str/blank?)
+         distinct
+         (map io/file)
+         (filter #(.isDirectory %))
+         vec)))
+
+(defn- event-file?
+  [file]
+  (and (.isFile file)
+       (str/ends-with? (.getName file) ".edn")))
+
+(defn local-events
+  []
+  (->> (event-log-dir-candidates)
+       (mapcat #(.listFiles %))
+       (filter event-file?)
+       (map #(edn/read-string (slurp %)))
+       (map module/normalize-event)
+       (sort-by (juxt :occurred-at :event-id))
+       vec))
+
+(defn latest-local-run-id
+  []
+  (some-> (last (local-events)) :run-id))
+
+(defn ingest-local-events!
+  [clients]
+  (let [events (local-events)
+        pending (remove #(contains? @ingested-event-ids (:event-id %)) events)]
+    (doseq [event pending]
+      (append-event! clients event)
+      (swap! ingested-event-ids conj (:event-id event)))
+    {:event-count (count events)
+     :ingested (count pending)
+     :run-id (some-> (last events) :run-id)}))
+
+(defn local-clients
+  []
+  (or (:clients @local-system)
+      (locking local-system
+        (or (:clients @local-system)
+            (when-let [create-ipc (requiring-resolve 'com.rpl.rama.test/create-ipc)]
+              (let [launch-module! (requiring-resolve 'com.rpl.rama.test/launch-module!)
+                    ipc (create-ipc)]
+                (launch-module! ipc module/FactoryDashboardModule {:tasks 4 :threads 2})
+                (let [clients (clients ipc)]
+                  (reset! local-system {:ipc ipc :clients clients})
+                  clients)))))))
+
 (defn run
   [clients run-id]
   (foreign-select-one (keypath run-id) (:runs clients)))
 
+(defn- by-occurrence
+  [entries]
+  (sort-by (fn [[event-id event]]
+             [(:occurred-at event) event-id])
+           entries))
+
 (defn timeline
   [clients run-id]
-  (vec (foreign-select [(keypath run-id) ALL] (:events-by-run clients))))
+  (vec (by-occurrence
+        (foreign-select [(keypath run-id) ALL] (:events-by-run clients)))))
 
 (defn handoffs
   [clients role]
-  (vec (foreign-select [(keypath role) ALL] (:handoffs-by-role clients))))
+  (vec (by-occurrence
+        (foreign-select [(keypath role) ALL] (:handoffs-by-role clients)))))
 
 (defn artifacts
   [clients run-id]
-  (vec (foreign-select [(keypath run-id) ALL] (:artifacts-by-run clients))))
+  (vec (by-occurrence
+        (foreign-select [(keypath run-id) ALL] (:artifacts-by-run clients)))))
 
 (defn event-count
   [clients event-type]
@@ -53,7 +126,8 @@
             :handoff-accepted (event-count clients :handoff-accepted)
             :artifact-written (event-count clients :artifact-written)
             :validation-passed (event-count clients :validation-passed)
-            :validation-failed (event-count clients :validation-failed)}})
+            :validation-failed (event-count clients :validation-failed)
+            :work-completed (event-count clients :work-completed)}})
 
 (def demo-events
   [{:event-id "evt-001"

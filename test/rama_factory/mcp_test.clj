@@ -75,7 +75,9 @@
             handoff-id (get-in created ["structuredContent" "handoff" "id"])]
         (testing "create writes a new handoff"
           (is (= false (get created "isError")))
-          (is (string? handoff-id)))
+          (is (string? handoff-id))
+          (is (= "handoff-created"
+                 (get-in created ["structuredContent" "event" "event-type"]))))
         (testing "claim moves handoff to in-process and attributes the claimant"
           (let [claimed (mcp/call-tool ctx
                                        "factory.claim_next_work"
@@ -84,7 +86,9 @@
             (is (= handoff-id
                    (get-in claimed ["structuredContent" "work" "id"])))
             (is (= "snips"
-                   (get-in claimed ["structuredContent" "work" "claimed-by" "persona/id"])))))
+                   (get-in claimed ["structuredContent" "work" "claimed-by" "persona/id"])))
+            (is (= "handoff-accepted"
+                   (get-in claimed ["structuredContent" "event" "event-type"])))))
         (testing "complete moves handoff to completed"
           (let [completed (mcp/call-tool ctx
                                          "factory.complete_work"
@@ -96,7 +100,10 @@
             (is (= "done"
                    (get-in completed ["structuredContent" "work" "result" "status"])))
             (is (= "Snips"
-                   (get-in completed ["structuredContent" "work" "result" "completed-by" "persona/name"])))))
+                   (get-in completed ["structuredContent" "work" "result" "completed-by" "persona/name"])))
+            (is (= ["work-completed" "validation-passed"]
+                   (mapv #(get % "event-type")
+                         (get-in completed ["structuredContent" "events"]))))))
         (testing "queue summary reports completed work"
           (let [summary (mcp/call-tool ctx "factory.queue_summary" {})]
             (is (= 1

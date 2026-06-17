@@ -2,6 +2,7 @@
   (:require [clojure.test :as test]
             [rama-factory.app-test]
             [rama-factory.docs-test]
+            [rama-factory.events-test]
             [rama-factory.generator-test]
             [rama-factory.handoff-test]
             [rama-factory.mcp-test]
@@ -15,6 +16,7 @@
   (let [{:keys [fail error]} (test/run-tests
                               'rama-factory.app-test
                               'rama-factory.docs-test
+                              'rama-factory.events-test
                               'rama-factory.generator-test
                               'rama-factory.model-test
                               'rama-factory.mcp-test

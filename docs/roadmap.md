@@ -99,6 +99,8 @@ Exit criteria:
 
 Goal: make agents useful without letting them improvise the factory.
 
+- Expose a local stdio MCP server for persona, skill, validation, and handoff
+  tools.
 - Convert repo-local skills into installable or discoverable skill packs.
 - Map factory roles to skills.
 - Add role prompts that require relevant skills and reference files.
@@ -107,6 +109,7 @@ Goal: make agents useful without letting them improvise the factory.
 Exit criteria:
 
 - A feature request can become role-owned tasks.
+- MCP-capable agents can discover personas, claim work, and complete handoffs.
 - Role agents know which skills and references to load.
 - Agent output is committed, handed off, and validated through factory gates.
 

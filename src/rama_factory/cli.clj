@@ -4,6 +4,7 @@
             [rama-factory.generator :as generator]
             [rama-factory.handoff :as handoff]
             [rama-factory.io :as fio]
+            [rama-factory.mcp :as mcp]
             [rama-factory.model :as model]
             [rama-factory.persona :as persona]
             [rama-factory.swarm :as swarm]
@@ -163,6 +164,7 @@
              "  clojure -M:factory swarm-plan"
              "  clojure -M:factory personas"
              "  clojure -M:factory persona <persona-id>"
+             "  clojure -M:factory mcp-tools"
              "  clojure -M:factory queue"
              "  clojure -M:factory accept <role>"
              "  clojure -M:factory complete <role> <handoff-id>"])))
@@ -181,6 +183,7 @@
     "persona" (if-let [id (second args)]
                 (persona-command id)
                 (usage))
+    "mcp-tools" (pprint/pprint mcp/tool-definitions)
     "queue" (queue-command)
     "accept" (if-let [role (second args)]
                (accept-command role)

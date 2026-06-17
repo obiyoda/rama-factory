@@ -55,6 +55,7 @@ devenv tasks run rama:validate
 devenv tasks run rama:simulate
 devenv tasks run swarm:plan
 devenv tasks run swarm:config
+clojure -M:mcp
 ```
 
 `devenv up` starts the dogfooded docs app at `http://localhost:3000`.
@@ -97,9 +98,11 @@ clojure -M:factory swarm-plan
 clojure -M:factory swarm-config
 clojure -M:factory personas
 clojure -M:factory persona snips
+clojure -M:factory mcp-tools
 clojure -M:factory queue
 clojure -M:factory accept architect
 clojure -M:factory complete architect <handoff-id>
+clojure -M:mcp
 clojure -M:docs
 clojure -M:test
 ```
@@ -112,11 +115,41 @@ clojure -M:test
 clojure -M:docs 3001
 ```
 
+## Local MCP Adapter
+
+Rama Factory includes a local stdio MCP server for agents that support MCP. It
+wraps the existing EDN factory kernel rather than creating a second workflow
+model.
+
+```json
+{
+  "mcpServers": {
+    "rama-factory": {
+      "command": "clojure",
+      "args": ["-M:mcp"],
+      "cwd": "/path/to/rama-factory"
+    }
+  }
+}
+```
+
+The first MCP tools expose the core control-plane loop:
+
+- `factory.list_personas`
+- `factory.get_persona`
+- `factory.list_skills`
+- `factory.get_skill`
+- `factory.queue_summary`
+- `factory.create_work`
+- `factory.claim_next_work`
+- `factory.complete_work`
+- `factory.validate`
+
 ## Design Boundary
 
 This PoC deliberately keeps the first useful core small:
 
-- It uses Clojure and EDN only, with no external libraries.
+- It keeps the core small: EDN for factory state, plus `org.clojure/data.json` for the MCP JSON-RPC transport.
 - It validates Rama-specific design metadata before generating a run.
 - It models SwarmForge handoffs as durable EDN files with `new`, `in-process`, `completed`, and audit queues.
 - It generates visible artifacts for every Rama development phase so skipped phases become obvious.
@@ -128,5 +161,6 @@ This PoC deliberately keeps the first useful core small:
 - It can generate a devenv-backed starter app.
 - It can install the auth extension as shadcn-style copied source that the target app owns.
 - It can install a Rama-backed factory dashboard seed that shows agent/factory events, handoffs, artifacts, validation gates, and timelines.
+- It exposes a local stdio MCP server so MCP-capable agents can discover personas, load skills, validate the factory, and move work through durable handoff queues.
 
-The next practical increment is connecting the existing handoff queue and workflow simulator to the factory-dashboard event model, then adding `swarm:prepare` so role worktrees can operate on starter apps and seeds.
+The next practical increment is connecting MCP work events and the existing handoff queue to the factory-dashboard event model, then adding `swarm:prepare` so role worktrees can operate on starter apps and seeds.

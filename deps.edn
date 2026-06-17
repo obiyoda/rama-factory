@@ -1,6 +1,8 @@
 {:paths ["src" "resources"]
+ :deps {org.clojure/data.json {:mvn/version "2.5.2"}}
  :aliases
  {:factory {:main-opts ["-m" "rama-factory.cli"]}
+  :mcp {:main-opts ["-m" "rama-factory.mcp"]}
   :docs {:extra-deps {com.github.brettatoms/zodiac {:mvn/version "0.9.98"}}
          :main-opts ["-m" "rama-factory.docs.main"]}
   :test {:extra-paths ["test"]

@@ -219,6 +219,26 @@
       ["Handoffs and factory events can carry persona identity. The dashboard can then show `Snips wrote module.clj` instead of anonymous role activity."
        "Future MCP tools should let agents ask the factory who they are, what skills to load, and which permissions apply."]}]}
 
+   {:id :mcp
+    :title "MCP Control Plane"
+    :kicker "Agent Interface"
+    :summary
+    "The local stdio MCP adapter lets agents discover personas, load skills, validate factory state, and move work through durable handoff queues."
+    :sections
+    [{:heading "Why MCP first"
+      :body
+      ["MCP is the narrowest useful agent-facing protocol for this project because it exposes tools without requiring a hosted factory."
+       "The adapter wraps the existing EDN kernel, so the source of truth remains personas, skills, factory config, and handoff files."]}
+     {:heading "Tool surface"
+      :bullets
+      ["Persona discovery: `factory.list_personas` and `factory.get_persona`."
+       "Skill discovery: `factory.list_skills` and `factory.get_skill`."
+       "Work loop: `factory.create_work`, `factory.claim_next_work`, and `factory.complete_work`."
+       "Validation: `factory.validate`."]}
+     {:heading "Human-readable flow"
+      :body
+      ["A coder agent can identify itself as Snips, claim the next coder handoff, receive artifact and gate metadata, complete the handoff with validation notes, and leave the queue state visible for humans and dashboards."]}]}
+
    {:id :roadmap
     :title "Roadmap"
     :kicker "Dogfood Plan"

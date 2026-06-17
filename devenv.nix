@@ -37,6 +37,10 @@ in
     exec = "clojure -M:factory swarm-plan";
   };
 
+  tasks."mcp:serve" = {
+    exec = "clojure -M:mcp";
+  };
+
   tasks."rama:test" = {
     exec = "clojure -M:test";
   };
@@ -77,6 +81,7 @@ in
     echo "  devenv tasks run rama:simulate    # generate the sample run"
     echo "  devenv tasks run swarm:plan       # inspect role worktrees"
     echo "  devenv tasks run swarm:config     # render SwarmForge window config"
+    echo "  clojure -M:mcp                    # run the local stdio MCP server"
   '';
 
   enterTest = ''

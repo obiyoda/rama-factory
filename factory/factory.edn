@@ -1,0 +1,94 @@
+{:factory/name "rama-software-factory-poc"
+ :factory/description
+ "A small Clojure proof of concept combining SwarmForge-style role handoffs with rama-ai-learn-style phased Rama module development."
+
+ :sources
+ [{:name "SwarmForge"
+   :url "https://github.com/unclebob/swarm-forge"
+   :used-for [:roles :handoffs :local-state :worktree-shape]}
+  {:name "rama-ai-learn"
+   :url "https://github.com/redplanetlabs/rama-ai-learn"
+   :used-for [:rama-phases :challenge-blueprints :artifact-gates]}]
+
+ :roles
+ {:specifier {:agent :codex
+              :worktree :master
+              :receive-mode :task
+              :owns [:implicit-spec :acceptance-criteria]}
+  :architect {:agent :codex
+              :worktree :architect
+              :receive-mode :batch
+              :owns [:plan :plan-validation :implementation-validation]}
+  :coder {:agent :codex
+          :worktree :coder
+          :receive-mode :task
+          :owns [:implementation :tests :finish]}
+  :refactorer {:agent :codex
+               :worktree :refactorer
+               :receive-mode :task
+               :owns [:structure-review :test-validation]}}
+
+ :swarm
+ {:driver :devenv
+  :transport :git-worktree-handoff
+  :worktrees-dir ".worktrees"
+  :role-order [:specifier :coder :refactorer :architect]}
+
+ :workflow
+ {:state-dir ".rama-factory"
+  :run-dir "runs"
+  :phases
+  [{:id :phase-0
+    :label "Implicit specification"
+    :owner :specifier
+    :artifact "IMPLICIT_SPEC.md"
+    :gate :visible-artifact}
+   {:id :phase-1
+    :label "Rama module plan"
+    :owner :architect
+    :artifact "PLAN.md"
+    :gate :pstate-and-topology-plan}
+   {:id :phase-2
+    :label "Plan validation"
+    :owner :architect
+    :artifact "PLAN_VALIDATION.md"
+    :gate :pass-or-replan}
+   {:id :phase-3
+    :label "Implementation"
+    :owner :coder
+    :artifact "module.clj"
+    :gate :source-written}
+   {:id :phase-4
+    :label "Implementation validation"
+    :owner :architect
+    :artifact "IMPLEMENTATION_VALIDATION.md"
+    :gate :pass-minor-or-major-fail}
+   {:id :phase-5
+    :label "Tests"
+    :owner :coder
+    :artifact "module_test.clj"
+    :gate :functional-performance-fault-tests}
+   {:id :phase-6
+    :label "Test validation"
+    :owner :refactorer
+    :artifact "TEST_VALIDATION.md"
+    :gate :pass-minor-or-major-fail}
+   {:id :phase-7
+    :label "Finish"
+    :owner :coder
+    :artifact "FINISH.md"
+    :gate :green-loop}]}
+
+ :rama/checks
+ [{:id :partition-alignment
+   :severity :error
+   :description "Every PState declares a partition key and every query declares a route."}
+  {:id :growth-control
+   :severity :error
+   :description "Growing collections must be subindexed or explicitly bounded."}
+  {:id :fault-tolerance
+   :severity :error
+   :description "The challenge states retry/idempotency requirements."}
+  {:id :read-path-cost
+   :severity :warning
+   :description "Queries should describe expected seek/scan behavior."}]}

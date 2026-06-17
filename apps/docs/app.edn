@@ -1,0 +1,20 @@
+{:app/id :rama-factory-docs
+ :app/title "Rama Factory"
+ :app/description
+ "Dogfooded documentation for a Laravel-style developer experience around Rama, with Zodiac as the default web runtime."
+ :features [:devenv :hypermedia :json-api :zodiac :extensions :rama]
+ :web {:runtime :zodiac
+       :port 3000
+       :cookie-name "rama-factory-docs"
+       :cookie-secret "rama-docs-cookie"
+       :reload-per-request? true}
+ :extensions
+ [{:id :auth
+   :status :planned
+   :provides [:users :sessions :tokens :policies]}
+  {:id :hypermedia
+   :status :planned
+   :provides [:layouts :forms :fragments :redirects]}
+  {:id :spa
+   :status :planned
+   :provides [:json-api :schemas :typescript-client]}]}

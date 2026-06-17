@@ -1,0 +1,119 @@
+{:challenge/id :bank-transfer-module
+ :challenge/title "Bank Transfer Module"
+ :challenge/namespace "bank-transfer-module.module"
+ :challenge/summary
+ "Track balances and transfer history with retry-safe processing. Deposits and transfers must not be double-processed, and reads must work after processing completes."
+
+ :contract
+ {:protocol "BankTransferModule"
+  :operations
+  [{:id :deposit!
+    :kind :command
+    :args [{:name "user-id" :type :string}
+           {:name "amt" :type :long}]
+    :effect "Increase the user's balance by amt exactly once per successful depot append."}
+   {:id :transfer!
+    :kind :command
+    :args [{:name "transfer-id" :type :string}
+           {:name "from-user-id" :type :string}
+           {:name "to-user-id" :type :string}
+           {:name "amt" :type :long}]
+    :effect "Move funds when the source has enough balance; record success or failure once."}
+   {:id :get-balance
+    :kind :query
+    :args [{:name "user-id" :type :string}]
+    :returns :long}
+   {:id :get-outgoing-transfers
+    :kind :query
+    :args [{:name "user-id" :type :string}]
+    :returns [:vector [:tuple :transfer-id :transfer-info]]}
+   {:id :get-incoming-transfers
+    :kind :query
+    :args [{:name "user-id" :type :string}]
+    :returns [:vector [:tuple :transfer-id :transfer-info]]}]}
+
+ :rama
+ {:depots
+  [{:id :deposits
+    :record [:deposit-id :user-id :amt]
+    :partitioner {:type :hash-by :field :user-id}}
+   {:id :transfers
+    :record [:transfer-id :from-user-id :to-user-id :amt]
+    :partitioner {:type :hash-by :field :from-user-id}}]
+
+  :pstates
+  [{:id :balances
+    :partition-key :user-id
+    :schema [:map :string :long]
+    :may-grow? true
+    :subindex? true
+    :purpose "Point lookup for current balance."}
+   {:id :outgoing-transfers
+    :partition-key :from-user-id
+    :schema [:map :string [:sorted-map :transfer-id :transfer-info]]
+    :may-grow? true
+    :subindex? true
+    :purpose "Contiguous range scan of a user's outgoing transfer history."}
+   {:id :incoming-transfers
+    :partition-key :to-user-id
+    :schema [:map :string [:sorted-map :transfer-id :transfer-info]]
+    :may-grow? true
+    :subindex? true
+    :purpose "Contiguous range scan of a user's incoming transfer history."}
+   {:id :processed-transfer-ids
+    :partition-key :transfer-id
+    :schema [:set :string]
+    :may-grow? true
+    :subindex? true
+    :purpose "Idempotency guard for retried transfer processing."}]
+
+  :queries
+  [{:id :get-balance
+    :route {:type :hash-by :field :user-id}
+    :reads [:balances]
+    :expected-io "One point lookup."}
+   {:id :get-outgoing-transfers
+    :route {:type :hash-by :field :user-id}
+    :reads [:outgoing-transfers]
+    :expected-io "One seek into the user's subindexed sorted map plus sequential iteration."}
+   {:id :get-incoming-transfers
+    :route {:type :hash-by :field :user-id}
+    :reads [:incoming-transfers]
+    :expected-io "One seek into the user's subindexed sorted map plus sequential iteration."}]
+
+  :topologies
+  [{:id :deposit-stream
+    :kind :stream
+    :source :deposits
+    :writes [:balances]
+    :fault-tolerance "Depot ack only after balance PState write is durable."}
+   {:id :transfer-stream
+    :kind :stream
+    :source :transfers
+    :writes [:balances :outgoing-transfers :incoming-transfers :processed-transfer-ids]
+    :fault-tolerance "Idempotency PState prevents duplicate transfer effects during retry."}]}
+
+ :acceptance
+ [{:id :deposit-visible-after-sync
+   :given ["user A has no balance"]
+   :when ["deposit 50 to A" "wait for processing"]
+   :then ["A balance is 50"]}
+  {:id :successful-transfer-conserves-money
+   :given ["A has balance 50" "B has balance 0"]
+   :when ["transfer 30 from A to B" "wait for processing"]
+   :then ["A balance is 20" "B balance is 30" "histories record success"]}
+  {:id :failed-transfer-is-recorded
+   :given ["A has balance 10"]
+   :when ["transfer 30 from A to B" "wait for processing"]
+   :then ["A balance is 10" "B balance is 0" "histories record failure"]}]
+
+ :non-functional
+ {:fault-tolerance
+  ["A retried deposit append cannot lose or double-apply a successful deposit."
+   "A retried transfer append cannot double-move funds."
+   "Worker restart does not require replaying depot history to reconstruct PStates."]
+  :performance
+  ["Balance reads use one point lookup."
+   "History reads use one subindexed seek plus sequential iteration."
+   "No read path performs one foreign select per transfer."]}}
+

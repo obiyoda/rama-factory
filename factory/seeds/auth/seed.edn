@@ -1,0 +1,26 @@
+{:seed/id :auth
+ :seed/name "Auth"
+ :seed/version "0.1.0"
+ :seed/summary
+ "Copy-owned Rama auth seed with module code, Zodiac-compatible routes, tests, docs, and agent skill guidance."
+ :seed/templates
+ [{:source "templates/manifest.edn"
+   :target "factory/extensions/auth.edn"}
+  {:source "templates/src/auth/module.clj"
+   :target "src/{{app_path}}/auth/module.clj"}
+  {:source "templates/src/auth/client.clj"
+   :target "src/{{app_path}}/auth/client.clj"}
+  {:source "templates/src/auth/views.clj"
+   :target "src/{{app_path}}/auth/views.clj"}
+  {:source "templates/src/auth/routes.clj"
+   :target "src/{{app_path}}/auth/routes.clj"}
+  {:source "templates/test/auth/module_test.clj"
+   :target "test/{{app_path}}/auth/module_test.clj"}
+  {:source "templates/test/auth/routes_test.clj"
+   :target "test/{{app_path}}/auth/routes_test.clj"}
+  {:source "templates/docs/auth.md"
+   :target "docs/extensions/auth.md"}
+  {:source "templates/skills/auth-extension/SKILL.md"
+   :target "factory/skills/auth-extension/SKILL.md"}
+  {:source "templates/skills/auth-extension/references/rama-auth.md"
+   :target "factory/skills/auth-extension/references/rama-auth.md"}]}

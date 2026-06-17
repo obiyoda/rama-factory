@@ -1,0 +1,8 @@
+{:paths ["src" "resources"]
+ :aliases
+ {:factory {:main-opts ["-m" "rama-factory.cli"]}
+  :docs {:extra-deps {com.github.brettatoms/zodiac {:mvn/version "0.9.98"}}
+         :main-opts ["-m" "rama-factory.docs.main"]}
+  :test {:extra-paths ["test"]
+         :extra-deps {com.github.brettatoms/zodiac {:mvn/version "0.9.98"}}
+         :main-opts ["-m" "rama-factory.test-runner"]}}}

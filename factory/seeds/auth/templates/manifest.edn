@@ -1,0 +1,30 @@
+{:extension/id :auth
+ :extension/name "Auth"
+ :extension/status :seeded
+ :extension/version "0.1.0"
+ :extension/source :rama-factory-seed
+ :extension/install-model :copy-owned-source
+ :extension/summary
+ "Authentication seed copied into {{app_title}}. This app owns the copied source after installation."
+ :extension/provides
+ [:users
+  :credentials
+  :sessions
+  :current-user
+  :login-audit
+  :hypermedia-auth
+  :json-auth-api]
+ :rama
+ {:module {{app_ns}}.auth.module/AuthModule
+  :depots [:registration-depot :session-depot :session-revocation-depot]
+  :pstates [:users :users-by-email :sessions :sessions-by-user :login-audit]
+  :queries [:find-user-by-email :get-current-user :list-user-sessions]
+  :local-test :in-process-cluster}
+ :web
+ {:runtime :zodiac
+  :routes {{app_ns}}.auth.routes/routes
+  :hypermedia ["/login" "/register" "/logout"]
+  :api ["/api/auth/me"]}
+ :skills
+ [{:id :auth-extension
+   :path "factory/skills/auth-extension"}]}

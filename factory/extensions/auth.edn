@@ -1,0 +1,145 @@
+{:extension/id :auth
+ :extension/name "Auth"
+ :extension/status :draft
+ :extension/version "0.1.0"
+ :extension/summary
+ "Authentication primitives for Rama Factory apps: users, sessions, tokens, password reset, policy hooks, hypermedia flows, and JSON APIs."
+
+ :extension/provides
+ [:users
+  :credentials
+  :sessions
+  :tokens
+  :password-reset
+  :current-user
+  :login-audit
+  :policy-subject]
+
+ :extension/requires
+ {:runtime [:devenv :zodiac]
+  :factory [:extension-manifest :rama-blueprint :web-routes :tests]
+  :skills [:rama-factory-build]}
+
+ :rama
+ {:depots
+  [{:id :auth-events
+    :record [:event-id :event-type :user-id :session-id :occurred-at :metadata]
+    :partitioner {:type :hash-by :field :user-id}}
+   {:id :credential-events
+    :record [:event-id :user-id :credential-type :credential-id :occurred-at :metadata]
+    :partitioner {:type :hash-by :field :user-id}}]
+
+  :pstates
+  [{:id :users
+    :partition-key :user-id
+    :schema [:map :uuid :user-record]
+    :may-grow? true
+    :subindex? true
+    :purpose "User identity and profile lookup."}
+   {:id :users-by-email
+    :partition-key :email
+    :schema [:map :string :uuid]
+    :may-grow? true
+    :subindex? true
+    :purpose "Login lookup from normalized email to user id."}
+   {:id :sessions
+    :partition-key :session-id
+    :schema [:map :uuid :session-record]
+    :may-grow? true
+    :bounded? true
+    :purpose "Session lookup with expiry and revocation state."}
+   {:id :sessions-by-user
+    :partition-key :user-id
+    :schema [:map :uuid [:sorted-map :session-id :session-summary]]
+    :may-grow? true
+    :subindex? true
+    :purpose "User session management and logout-all flows."}
+   {:id :login-audit
+    :partition-key :user-id
+    :schema [:map :uuid [:sorted-map :occurred-at :login-event]]
+    :may-grow? true
+    :subindex? true
+    :purpose "Security audit trail for auth activity."}]
+
+  :queries
+  [{:id :find-user-by-email
+    :route {:type :hash-by :field :email}
+    :reads [:users-by-email :users]
+    :expected-io "One email index lookup and one user point lookup."}
+   {:id :get-current-user
+    :route {:type :hash-by :field :session-id}
+    :reads [:sessions :users]
+    :expected-io "One session point lookup and one user point lookup."}
+   {:id :list-user-sessions
+    :route {:type :hash-by :field :user-id}
+    :reads [:sessions-by-user]
+    :expected-io "One seek into a user's subindexed session map plus sequential iteration."}]
+
+  :topologies
+  [{:id :auth-event-stream
+    :kind :stream
+    :source :auth-events
+    :writes [:users :users-by-email :sessions :sessions-by-user :login-audit]
+    :fault-tolerance "Event ids and session ids must be idempotent so retries cannot duplicate auth effects."}
+   {:id :credential-event-stream
+    :kind :stream
+    :source :credential-events
+    :writes [:users :login-audit]
+    :fault-tolerance "Credential updates are applied by stable credential event id."}]}
+
+ :web
+ {:runtime :zodiac
+  :hypermedia
+  {:routes
+   [{:id :login-page :method :get :path "/login"}
+    {:id :login-submit :method :post :path "/login"}
+    {:id :logout-submit :method :post :path "/logout"}
+    {:id :register-page :method :get :path "/register"}
+    {:id :register-submit :method :post :path "/register"}
+    {:id :password-reset-page :method :get :path "/password/reset"}
+    {:id :password-reset-submit :method :post :path "/password/reset"}]
+   :views [:login-form :register-form :password-reset-form :session-list]
+   :uses [:csrf :flash :redirects :validation-errors]}
+  :api
+  {:routes
+   [{:id :api-login :method :post :path "/api/auth/login"}
+    {:id :api-logout :method :post :path "/api/auth/logout"}
+    {:id :api-current-user :method :get :path "/api/auth/me"}
+    {:id :api-sessions :method :get :path "/api/auth/sessions"}]
+   :schemas [:login-request :login-response :current-user-response :auth-error]}}
+
+ :generators
+ [{:id :make-auth-extension
+   :command "rama make:extension auth"
+   :outputs [:manifest :rama-blueprint :routes :views :api-schemas :tests :docs]}]
+
+ :validators
+ [{:id :auth-pstate-partitioning
+   :severity :error
+   :description "Auth PStates must declare partition keys and expected query routes."}
+  {:id :auth-session-expiry
+   :severity :error
+   :description "Session state must include expiry or revocation bounds."}
+  {:id :auth-idempotency
+   :severity :error
+   :description "Auth and credential events must be retry-safe by stable event id."}]
+
+ :tests
+ [{:id :register-login-logout
+   :kind :acceptance
+   :covers [:users :sessions :current-user]}
+  {:id :session-retry-idempotency
+   :kind :fault
+   :covers [:sessions :login-audit]}
+  {:id :current-user-read-path
+   :kind :performance
+   :covers [:get-current-user]}]
+
+ :skills
+ [{:id :rama-factory-build
+   :path "factory/skills/rama-factory-build"
+   :uses [:roles :rama :extensions]}]
+
+ :docs
+ {:pages [:overview :installation :hypermedia :api :rama-design :security]
+  :source "factory/extensions/auth.edn"}}

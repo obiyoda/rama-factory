@@ -19,6 +19,10 @@ For local development, MCP tools append durable EDN events under
 local Rama dashboard module and fall back to demo data when the event log is
 empty.
 
+The dashboard route uses Basecoat UI as the default factory screen layer. The
+seed includes the Basecoat CDN assets and plain HTML classes such as `card`,
+`badge`, `btn-outline`, and `table`.
+
 ## Event Model
 
 The first event types are:

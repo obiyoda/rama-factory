@@ -83,7 +83,7 @@ through Rama while building other Rama projects.
 - Ingest factory events into Rama depots.
 - Materialize runs, role handoffs, artifacts, validation gates, timelines, and
   event counts as PStates.
-- Render a Zodiac dashboard at `/factory`.
+- Render a Zodiac dashboard at `/factory` using Basecoat UI defaults.
 - Keep a demo snapshot available without a running agent swarm.
 
 Exit criteria:
@@ -92,6 +92,7 @@ Exit criteria:
   starter app.
 - Dashboard module tests run with Rama `InProcessCluster`.
 - Generated app tests prove `/factory` and `/api/factory/snapshot`.
+- Dashboard markup uses Basecoat classes for cards, badges, buttons, and tables.
 - Docs explain that the dashboard is a control-plane app for building a
   separate workpiece app.
 

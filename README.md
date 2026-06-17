@@ -163,5 +163,6 @@ This PoC deliberately keeps the first useful core small:
 - It can install a Rama-backed factory dashboard seed that shows agent/factory events, handoffs, artifacts, validation gates, and timelines.
 - It exposes a local stdio MCP server so MCP-capable agents can discover personas, load skills, validate the factory, and move work through durable handoff queues.
 - MCP create/claim/complete calls append durable events under `.rama-factory/events`, which the factory dashboard seed can ingest into its Rama module.
+- Factory-facing UI screens use Basecoat UI defaults: plain HTML, shadcn-style classes, and no React requirement.
 
 The next practical increment is adding `swarm:prepare` so role worktrees can operate on starter apps and seeds.

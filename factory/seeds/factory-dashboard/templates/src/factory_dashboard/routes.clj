@@ -45,19 +45,21 @@
 
 (defn snapshot
   [request]
-  (if-let [clients (request-clients request)]
-    (let [ingest (dashboard/ingest-local-events! clients)
-          run-id (or (get-in request [:params "run-id"])
-                     (:run-id ingest)
-                     "demo-auth-run")
-          live (assoc (dashboard/snapshot clients run-id)
-                      :source :live
-                      :observed-events (:event-count ingest)
-                      :ingested-events (:ingested ingest))]
-      (if (empty-live-snapshot? live ingest)
-        (demo-snapshot)
-        live))
-    (demo-snapshot)))
+  (if (:factory-dashboard/demo? request)
+    (demo-snapshot)
+    (if-let [clients (request-clients request)]
+      (let [ingest (dashboard/ingest-local-events! clients)
+            run-id (or (get-in request [:params "run-id"])
+                       (:run-id ingest)
+                       "demo-auth-run")
+            live (assoc (dashboard/snapshot clients run-id)
+                        :source :live
+                        :observed-events (:event-count ingest)
+                        :ingested-events (:ingested ingest))]
+        (if (empty-live-snapshot? live ingest)
+          (demo-snapshot)
+          live))
+      (demo-snapshot))))
 
 (defn dashboard-page
   [request]

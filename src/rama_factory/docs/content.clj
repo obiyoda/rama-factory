@@ -122,6 +122,7 @@
     [{:heading "Hypermedia lane"
       :bullets
       ["Hiccup pages and fragments."
+       "Basecoat UI defaults for factory-facing screens."
        "Form helpers, validation errors, redirects, flash messages, and CSRF defaults."
        "Partial refresh patterns compatible with HTMX or Turbo-style clients."
        "Resource pages that can be generated from queries, policies, and view models."]}
@@ -197,7 +198,8 @@
      {:heading "Current seed"
       :body
       ["`factory/seeds/factory-dashboard` copies a Rama module, client helpers, Zodiac dashboard routes, tests, docs, and skill guidance into a generated app."
-       "The first dashboard route is `/factory`, backed by a demo snapshot when no running agent swarm is connected."]}]}
+       "The first dashboard route is `/factory`, backed by live MCP events when present and demo data otherwise."
+       "The copied screen uses Basecoat UI classes as the default factory UI style."]}]}
 
    {:id :personas
     :title "Agent Personas"

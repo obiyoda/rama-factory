@@ -41,6 +41,27 @@ toolchain, exposes named tasks, supervises noninteractive processes, and runs
 tests. The factory stays responsible for the role topology, Rama workflow
 metadata, artifact gates, and handoff semantics.
 
+## Dogfood Seed Labs
+
+See [`dogfood-seed-system.html`](dogfood-seed-system.html) for the visual plan.
+
+Generated apps are useful evidence that a seed works, but they should not appear
+as accidental untracked directories at the factory repo root. The seed system
+should grow a lab layer:
+
+- `factory/seeds/<seed>` remains the tracked source package.
+- `factory/seed-labs/<lab>.edn` describes a dogfood scenario, source seeds,
+  validation commands, and commit evidence.
+- `.rama-workspaces/<lab>` is ignored by the factory repo and can be a generated
+  app with its own git history.
+- `examples/<lab>` is reserved for curated, known-good snapshots that are worth
+  showing to open-source users.
+
+The practical loop is: generate a lab app, commit the baseline, let agents work
+inside the lab, validate the app, checkpoint the evidence, then decide whether
+to promote changes back into the seed, publish an example, keep the work
+app-specific, or reject it with a report.
+
 SwarmForge contributes the worktree model:
 
 - one role can run in the main checkout

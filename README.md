@@ -17,6 +17,7 @@ The product direction is captured in:
 
 - [`docs/charter.md`](docs/charter.md) for the mission, principles, and economic strategy.
 - [`docs/roadmap.md`](docs/roadmap.md) for staged milestones.
+- [`docs/dogfood-seed-system.html`](docs/dogfood-seed-system.html) for the visual seed-lab plan.
 - [`factory/skills/rama-factory-build/`](factory/skills/rama-factory-build/) for the first repo-local agent skill pack.
 - [`factory/personas.edn`](factory/personas.edn) for named agent personas such as Snips and ArchitectAlice.
 - [`factory/extensions/auth.edn`](factory/extensions/auth.edn) for the first extension manifest draft.

@@ -1,0 +1,26 @@
+{:seed/id :factory-dashboard
+ :seed/name "Factory Dashboard"
+ :seed/version "0.1.0"
+ :seed/summary
+ "Copy-owned Rama Factory floor dashboard seed for agent events, handoffs, artifacts, gates, timelines, and cycle metrics."
+ :seed/templates
+ [{:source "templates/manifest.edn"
+   :target "factory/extensions/factory-dashboard.edn"}
+  {:source "templates/src/factory_dashboard/module.clj"
+   :target "src/{{app_path}}/factory_dashboard/module.clj"}
+  {:source "templates/src/factory_dashboard/client.clj"
+   :target "src/{{app_path}}/factory_dashboard/client.clj"}
+  {:source "templates/src/factory_dashboard/views.clj"
+   :target "src/{{app_path}}/factory_dashboard/views.clj"}
+  {:source "templates/src/factory_dashboard/routes.clj"
+   :target "src/{{app_path}}/factory_dashboard/routes.clj"}
+  {:source "templates/test/factory_dashboard/module_test.clj"
+   :target "test/{{app_path}}/factory_dashboard/module_test.clj"}
+  {:source "templates/test/factory_dashboard/routes_test.clj"
+   :target "test/{{app_path}}/factory_dashboard/routes_test.clj"}
+  {:source "templates/docs/factory-dashboard.md"
+   :target "docs/extensions/factory-dashboard.md"}
+  {:source "templates/skills/factory-dashboard/SKILL.md"
+   :target "factory/skills/factory-dashboard/SKILL.md"}
+  {:source "templates/skills/factory-dashboard/references/events.md"
+   :target "factory/skills/factory-dashboard/references/events.md"}]}

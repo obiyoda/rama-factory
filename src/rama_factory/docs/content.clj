@@ -179,6 +179,26 @@
       :body
       ["The first auth seed emits Rama module code, route stubs, view stubs, API schemas, tests, docs, and skill guidance. The target app owns the copied code after install."]}]}
 
+   {:id :factory-dashboard
+    :title "Factory Dashboard"
+    :kicker "Flagship Seed"
+    :summary
+    "A Rama-backed factory floor that shows agent work, handoffs, artifacts, validation gates, and timelines while another Rama project is being built."
+    :sections
+    [{:heading "Control plane and workpiece"
+      :body
+      ["The dashboard app is the control plane. It observes factory work and materializes views for runs, role queues, artifact status, validation gates, and event timelines."
+       "The app being built is the workpiece. It can be a separate generated Rama app such as `invoice-app`, while the factory floor shows the flow of agent work around it."]}
+     {:heading "Why Rama fits"
+      :bullets
+      ["Factory work is naturally event-shaped: run created, handoff accepted, artifact written, validation passed."
+       "Rama depots preserve the event stream while PStates provide fast dashboard views."
+       "Replay, audit, and future scale are part of the default architecture instead of a later rewrite."]}
+     {:heading "Current seed"
+      :body
+      ["`factory/seeds/factory-dashboard` copies a Rama module, client helpers, Zodiac dashboard routes, tests, docs, and skill guidance into a generated app."
+       "The first dashboard route is `/factory`, backed by a demo snapshot when no running agent swarm is connected."]}]}
+
    {:id :roadmap
     :title "Roadmap"
     :kicker "Dogfood Plan"
@@ -194,6 +214,7 @@
       :bullets
       ["Generate a devenv-backed starter app with `rama new`."
        "Install auth with `rama add auth --from factory/seeds/auth --target <app>`."
+       "Install the factory floor with `rama add factory-dashboard --from factory/seeds/factory-dashboard --target <app>`."
        "Tighten the auth seed against Rama `InProcessCluster` behavior."
        "Add an extension manifest validator."
        "Add `make:app`, `make:page`, `make:api`, and `make:extension` commands."

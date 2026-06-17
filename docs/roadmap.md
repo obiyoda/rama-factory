@@ -74,7 +74,28 @@ Exit criteria:
 - The docs app can render the auth extension page from its manifest or seed
   metadata.
 
-## Milestone 4: Agent Skill Runtime
+## Milestone 4: Factory Floor Dashboard
+
+Goal: make the flagship demo a Rama project that observes factory work flowing
+through Rama while building other Rama projects.
+
+- Add `factory-dashboard` as a copy-owned seed.
+- Ingest factory events into Rama depots.
+- Materialize runs, role handoffs, artifacts, validation gates, timelines, and
+  event counts as PStates.
+- Render a Zodiac dashboard at `/factory`.
+- Keep a demo snapshot available without a running agent swarm.
+
+Exit criteria:
+
+- `rama add factory-dashboard --from <seed>` copies dashboard source into a
+  starter app.
+- Dashboard module tests run with Rama `InProcessCluster`.
+- Generated app tests prove `/factory` and `/api/factory/snapshot`.
+- Docs explain that the dashboard is a control-plane app for building a
+  separate workpiece app.
+
+## Milestone 5: Agent Skill Runtime
 
 Goal: make agents useful without letting them improvise the factory.
 
@@ -89,7 +110,7 @@ Exit criteria:
 - Role agents know which skills and references to load.
 - Agent output is committed, handed off, and validated through factory gates.
 
-## Milestone 5: Rama App Framework
+## Milestone 6: Rama App Framework
 
 Goal: turn the factory into an application framework.
 
@@ -104,7 +125,7 @@ Exit criteria:
 - A Rama module blueprint can become runnable code and tests.
 - The generated app supports both hypermedia and SPA/API frontends.
 
-## Milestone 6: Ecosystem
+## Milestone 7: Ecosystem
 
 Goal: make extensions the compounding asset.
 
@@ -121,7 +142,7 @@ Exit criteria:
 - Extension docs are generated into the docs app.
 - Agent skills can be packaged with extensions.
 
-## Milestone 7: Distribution Surface
+## Milestone 8: Distribution Surface
 
 Goal: make the open-source seed model easy to consume.
 

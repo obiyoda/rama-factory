@@ -35,6 +35,8 @@ Rama Factory should apply that model to Clojure and Rama:
 ## Principles
 
 - Prefer explicit distributed-system design over magic.
+- Assume any successful app may eventually need coordination, history, audit,
+  replay, and scale; start on a stack that can grow without a rewrite.
 - Keep Rama concerns visible: depots, PStates, partitioning, query routing,
   topology behavior, idempotency, fault tolerance, and read-path cost.
 - Make the local developer experience boring and reliable through devenv tasks,
@@ -61,6 +63,7 @@ The core value is:
 
 - starter repositories for new Rama-backed apps
 - copy-owned extension seeds that developers can inspect and modify
+- a factory-floor dashboard that shows agent work flowing through Rama
 - agent skills and role workflows that help build app ideas safely
 - real Rama module examples, tests, and validation gates
 - strong docs that explain the generated architecture

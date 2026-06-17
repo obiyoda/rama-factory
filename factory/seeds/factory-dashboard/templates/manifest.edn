@@ -1,0 +1,29 @@
+{:extension/id :factory-dashboard
+ :extension/name "Factory Dashboard"
+ :extension/status :seeded
+ :extension/version "0.1.0"
+ :extension/source :rama-factory-seed
+ :extension/install-model :copy-owned-source
+ :extension/summary
+ "Factory floor dashboard seed copied into {{app_title}}. This app owns the copied source after installation."
+ :extension/provides
+ [:factory-events
+  :run-dashboard
+  :handoff-queues
+  :artifact-index
+  :validation-gates
+  :agent-activity
+  :event-timeline]
+ :rama
+ {:module {{app_ns}}.factory-dashboard.module/FactoryDashboardModule
+  :depots [:factory-events-depot]
+  :pstates [:runs :events-by-run :handoffs-by-role :artifacts-by-run :event-counts]
+  :local-test :in-process-cluster}
+ :web
+ {:runtime :zodiac
+  :routes {{app_ns}}.factory-dashboard.routes/routes
+  :hypermedia ["/factory"]
+  :api ["/api/factory/snapshot"]}
+ :skills
+ [{:id :factory-dashboard
+   :path "factory/skills/factory-dashboard"}]}

@@ -10,6 +10,7 @@
 
 (def default-factory "factory/factory.edn")
 (def default-challenge "factory/challenges/bank-transfer.edn")
+(def supported-seeds #{"auth" "factory-dashboard"})
 
 (declare usage)
 
@@ -106,11 +107,11 @@
 (defn make-extension-command
   [args]
   (let [extension (first args)]
-    (if (= "auth" extension)
+    (if (contains? supported-seeds extension)
       (let [seed-root (or (option-value args "--target")
-                          (generator/factory-seed-root :auth))
+                          (generator/factory-seed-root extension))
             seed (generator/validate-seed! seed-root)]
-        (println "auth seed ready")
+        (println extension "seed ready")
         (println "seed:" seed-root)
         (println "templates:" (count (:seed/templates seed))))
       (usage))))
@@ -121,7 +122,7 @@
         seed-root (or (option-value args "--from")
                       (generator/factory-seed-root extension))
         target-root (or (option-value args "--target") ".")]
-    (if (and (= "auth" extension) seed-root)
+    (if (and (contains? supported-seeds extension) seed-root)
       (let [result (generator/install-extension! target-root
                                                  extension
                                                  seed-root
@@ -138,8 +139,8 @@
             "\n"
             ["Usage:"
              "  clojure -M:factory new <app-name> [target-dir] [--force]"
-             "  clojure -M:factory make:extension auth"
-             "  clojure -M:factory add auth --from <seed-path> [--target <app-dir>] [--force]"
+             "  clojure -M:factory make:extension <auth|factory-dashboard>"
+             "  clojure -M:factory add <auth|factory-dashboard> --from <seed-path> [--target <app-dir>] [--force]"
              "  clojure -M:factory validate"
              "  clojure -M:factory simulate [run-id]"
              "  clojure -M:factory swarm-config"

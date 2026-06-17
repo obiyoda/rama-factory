@@ -72,6 +72,7 @@ in
     echo "  devenv test                       # run the verification suite"
     echo "  clojure -M:factory new <app>      # create a starter app"
     echo "  clojure -M:factory add auth --from factory/seeds/auth --target <app>"
+    echo "  clojure -M:factory add factory-dashboard --from factory/seeds/factory-dashboard --target <app>"
     echo "  devenv tasks run rama:validate    # validate factory/challenge data"
     echo "  devenv tasks run rama:simulate    # generate the sample run"
     echo "  devenv tasks run swarm:plan       # inspect role worktrees"

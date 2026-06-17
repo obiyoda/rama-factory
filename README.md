@@ -20,6 +20,7 @@ The product direction is captured in:
 - [`factory/skills/rama-factory-build/`](factory/skills/rama-factory-build/) for the first repo-local agent skill pack.
 - [`factory/extensions/auth.edn`](factory/extensions/auth.edn) for the first extension manifest draft.
 - [`factory/seeds/auth/`](factory/seeds/auth/) for the first copy-owned extension seed.
+- [`factory/seeds/factory-dashboard/`](factory/seeds/factory-dashboard/) for the flagship factory-floor dashboard seed.
 
 The sample factory runs an eight-phase Rama module workflow:
 
@@ -66,6 +67,15 @@ cd invoice-app
 devenv test
 ```
 
+Factory-floor dashboard demo:
+
+```bash
+clojure -M:factory new factory-floor
+clojure -M:factory add factory-dashboard --from factory/seeds/factory-dashboard --target factory-floor
+cd factory-floor
+devenv up
+```
+
 From this repository, the auth seed can be validated with:
 
 ```bash
@@ -77,7 +87,9 @@ Raw Clojure commands are still available underneath the devenv layer:
 ```bash
 clojure -M:factory new invoice-app
 clojure -M:factory make:extension auth
+clojure -M:factory make:extension factory-dashboard
 clojure -M:factory add auth --from <seed-path> --target <app-dir>
+clojure -M:factory add factory-dashboard --from <seed-path> --target <app-dir>
 clojure -M:factory validate
 clojure -M:factory simulate demo-bank-transfer
 clojure -M:factory swarm-plan
@@ -111,5 +123,6 @@ This PoC deliberately keeps the first useful core small:
 - It supports both hypermedia pages and JSON endpoints in the first dogfooded app.
 - It can generate a devenv-backed starter app.
 - It can install the auth extension as shadcn-style copied source that the target app owns.
+- It can install a Rama-backed factory dashboard seed that shows agent/factory events, handoffs, artifacts, validation gates, and timelines.
 
-The next practical increment is tightening the generated auth seed against Rama `InProcessCluster` behavior, then adding `swarm:prepare` so role worktrees can operate on starter apps and seeds.
+The next practical increment is connecting the existing handoff queue and workflow simulator to the factory-dashboard event model, then adding `swarm:prepare` so role worktrees can operate on starter apps and seeds.

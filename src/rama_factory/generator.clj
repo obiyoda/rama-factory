@@ -166,14 +166,41 @@
         "logger.rama.level=WARN\n")
 
    (str "src/" path "/web.clj")
-   (str "(ns " ns ".web)\n\n"
+   (str "(ns " ns ".web\n"
+        "  (:require [clojure.edn :as edn]\n"
+        "            [clojure.java.io :as io]))\n\n"
+        "(def extension-route-vars\n"
+        "  {:auth \"" ns ".auth.routes/routes\"\n"
+        "   :factory-dashboard \"" ns ".factory-dashboard.routes/routes\"})\n\n"
+        "(defn app-config\n"
+        "  []\n"
+        "  (let [f (io/file \"rama-factory.edn\")]\n"
+        "    (if (.exists f)\n"
+        "      (edn/read-string (slurp f))\n"
+        "      {:extensions []})))\n\n"
+        "(defn load-routes\n"
+        "  [qualified-var]\n"
+        "  (try\n"
+        "    (let [sym (symbol qualified-var)]\n"
+        "      (require (symbol (namespace sym)))\n"
+        "      (deref (resolve sym)))\n"
+        "    (catch Exception _\n"
+        "      [])))\n\n"
+        "(defn extension-routes\n"
+        "  []\n"
+        "  (->> (:extensions (app-config))\n"
+        "       (keep extension-route-vars)\n"
+        "       (mapcat load-routes)\n"
+        "       vec))\n\n"
         "(defn home\n"
         "  [_request]\n"
         "  {:status 200\n"
         "   :headers {\"Content-Type\" \"text/html; charset=utf-8\"}\n"
         "   :body \"<main><h1>" title "</h1><p>Rama Factory starter app.</p></main>\"})\n\n"
+        "(def base-routes\n"
+        "  [[\"/\" {:get home}]])\n\n"
         "(def routes\n"
-        "  [[\"/\" {:get home}]])\n")
+        "  (vec (concat base-routes (extension-routes))))\n")
 
    (str "src/" path "/main.clj")
    (str "(ns " ns ".main\n"

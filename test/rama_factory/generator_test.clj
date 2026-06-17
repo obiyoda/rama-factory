@@ -72,7 +72,33 @@
       (finally
         (fio/delete-tree! root)))))
 
+(deftest factory-dashboard-seed-installs-into-starter-app
+  (let [root (temp-dir)]
+    (try
+      (let [app-root (path root "factory-floor")]
+        (generator/create-app! "Factory Floor" app-root {})
+        (let [result (generator/install-extension! app-root
+                                                   "factory-dashboard"
+                                                   (generator/factory-seed-root :factory-dashboard)
+                                                   {})
+              config (fio/read-edn (path app-root "rama-factory.edn"))
+              module-source (slurp (path app-root "src/factory_floor/factory_dashboard/module.clj"))
+              web-source (slurp (path app-root "src/factory_floor/web.clj"))]
+          (is (= [:factory-dashboard] (:extensions config)))
+          (is (= 10 (count (:written result))))
+          (is (.exists (io/file app-root "test/factory_floor/factory_dashboard/module_test.clj")))
+          (is (.exists (io/file app-root "factory/skills/factory-dashboard/SKILL.md")))
+          (is (str/includes? module-source "factory-floor.factory-dashboard.module"))
+          (is (str/includes? web-source ":factory-dashboard"))))
+      (finally
+        (fio/delete-tree! root)))))
+
 (deftest auth-seed-package-is-valid
   (let [seed (generator/validate-seed! (generator/factory-seed-root :auth))]
     (is (= :auth (:seed/id seed)))
+    (is (= 10 (count (:seed/templates seed))))))
+
+(deftest factory-dashboard-seed-package-is-valid
+  (let [seed (generator/validate-seed! (generator/factory-seed-root :factory-dashboard))]
+    (is (= :factory-dashboard (:seed/id seed)))
     (is (= 10 (count (:seed/templates seed))))))

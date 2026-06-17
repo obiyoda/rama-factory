@@ -1,5 +1,6 @@
 (ns rama-factory.model
-  (:require [clojure.set :as set]))
+  (:require [clojure.set :as set]
+            [rama-factory.persona :as persona]))
 
 (def required-challenge-keys
   #{:challenge/id :challenge/title :challenge/namespace :contract :rama :acceptance})
@@ -118,9 +119,13 @@
                   {})])))))
 
 (defn validate
-  [factory challenge]
-  {:factory (validate-factory factory)
-   :challenge (validate-challenge challenge)})
+  ([factory challenge]
+   (validate factory challenge nil))
+  ([factory challenge personas]
+   (cond-> {:factory (validate-factory factory)
+            :challenge (validate-challenge challenge)}
+     (some? personas)
+     (assoc :personas (persona/validate-personas factory personas)))))
 
 (defn valid?
   [validation]
@@ -134,4 +139,3 @@
 (defn phase-sequence
   [factory]
   (vec (get-in factory [:workflow :phases])))
-

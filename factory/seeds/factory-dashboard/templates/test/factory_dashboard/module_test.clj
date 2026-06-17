@@ -16,7 +16,10 @@
           (is (= "passed" (get-in snapshot [:run :status]))))
         (testing "timeline and artifacts are materialized by run"
           (is (= 5 (count (:timeline snapshot))))
-          (is (= 5 (count (:artifacts snapshot)))))
+          (is (= 5 (count (:artifacts snapshot))))
+          (is (= "Snips"
+                 (:persona-name (second (first (filter #(= "evt-004" (first %))
+                                                        (:timeline snapshot))))))))
         (testing "role handoffs are queryable independently"
           (is (= 2 (count (dashboard/handoffs clients "coder")))))
         (testing "event counts are maintained as fast projections"

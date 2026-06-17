@@ -7,7 +7,7 @@
 
 (deftest docs-content-has-core-framework-pages
   (let [ids (set (map :id content/pages))]
-    (is (every? ids [:vision :architecture :devenv :swarm :zodiac :frontends :extensions :auth :factory-dashboard :roadmap]))))
+    (is (every? ids [:vision :architecture :devenv :swarm :zodiac :frontends :extensions :auth :factory-dashboard :personas :roadmap]))))
 
 (deftest docs-app-serves-hypermedia-and-json
   (let [system (web/start! (docs/config)

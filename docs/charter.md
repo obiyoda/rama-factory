@@ -43,6 +43,8 @@ Rama Factory should apply that model to Clojure and Rama:
   processes, services, and tests.
 - Treat agents as role-bound collaborators with skills, worktrees, durable
   handoffs, and verification gates.
+- Give agents named personas so humans can understand ownership, style, skills,
+  and event attribution.
 - Build the docs site in the framework as the first dogfooded application.
 - Let extensions solve common application needs without hiding the underlying
   state model.
@@ -64,6 +66,7 @@ The core value is:
 - starter repositories for new Rama-backed apps
 - copy-owned extension seeds that developers can inspect and modify
 - a factory-floor dashboard that shows agent work flowing through Rama
+- named agent personas that make factory activity legible to humans
 - agent skills and role workflows that help build app ideas safely
 - real Rama module examples, tests, and validation gates
 - strong docs that explain the generated architecture

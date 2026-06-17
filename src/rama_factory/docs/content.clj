@@ -199,6 +199,26 @@
       ["`factory/seeds/factory-dashboard` copies a Rama module, client helpers, Zodiac dashboard routes, tests, docs, and skill guidance into a generated app."
        "The first dashboard route is `/factory`, backed by a demo snapshot when no running agent swarm is connected."]}]}
 
+   {:id :personas
+    :title "Agent Personas"
+    :kicker "Human-Readable Agents"
+    :summary
+    "Personas give agents names, roles, skills, style, permissions, and event attribution so humans can understand who did the work."
+    :sections
+    [{:heading "Why personas"
+      :body
+      ["Roles define responsibility. Skills define know-how. Personas define who shows up to do the work."
+       "A persona is separate from the runtime. Snips can be a Codex-backed coder today, while a future persona could use Claude or an external agent runtime."]}
+     {:heading "What a persona contains"
+      :bullets
+      ["Name and stable id, such as `Snips` or `ArchitectAlice`."
+       "Default role, runtime, skills, style, and permissions."
+       "Dashboard display metadata such as color and display name."]}
+     {:heading "Where personas appear"
+      :body
+      ["Handoffs and factory events can carry persona identity. The dashboard can then show `Snips wrote module.clj` instead of anonymous role activity."
+       "Future MCP tools should let agents ask the factory who they are, what skills to load, and which permissions apply."]}]}
+
    {:id :roadmap
     :title "Roadmap"
     :kicker "Dogfood Plan"

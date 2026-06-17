@@ -57,7 +57,7 @@
           (->> to (map name) (str/join "_"))))
 
 (defn deliver!
-  [state-dir {:keys [from to priority type task payload] :as draft}]
+  [state-dir {:keys [from to priority type task payload persona] :as draft}]
   (let [recipients (if (sequential? to) to [to])
         sequence (next-sequence! state-dir from)
         id (handoff-id from sequence)
@@ -67,6 +67,7 @@
                      :priority (or priority 50)
                      :type (or type :artifact-handoff)
                      :task task
+                     :persona persona
                      :created-at (timestamp)
                      :payload payload}
                     (dissoc draft :to))]
@@ -131,4 +132,3 @@
       (assoc handoff :file (.getPath (clojure.java.io/file target))))
     (throw (ex-info "No in-process handoff found."
                     {:role role :id id :state-dir state-dir}))))
-

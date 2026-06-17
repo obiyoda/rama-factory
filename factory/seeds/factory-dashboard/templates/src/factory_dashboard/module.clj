@@ -4,15 +4,17 @@
   (:require [com.rpl.rama.aggs :as aggs]))
 
 (defrecord FactoryEvent
-  [event-id event-type run-id work-id role phase artifact status message occurred-at])
+  [event-id event-type run-id work-id role persona-id persona-name phase artifact status message occurred-at])
 
 (defn normalize-event
-  [{:keys [event-id event-type run-id work-id role phase artifact status message occurred-at]}]
+  [{:keys [event-id event-type run-id work-id role persona-id persona-name phase artifact status message occurred-at]}]
   (->FactoryEvent (or event-id (str (java.util.UUID/randomUUID)))
                   (name event-type)
                   (or run-id "default-run")
                   (or work-id "default-work")
                   (or role "system")
+                  (or persona-id "system")
+                  (or persona-name "System")
                   (or phase "unassigned")
                   (or artifact "")
                   (or status "recorded")
@@ -36,6 +38,8 @@
                                  (fixed-keys-schema {:event-type String
                                                      :work-id String
                                                      :role String
+                                                     :persona-id String
+                                                     :persona-name String
                                                      :phase String
                                                      :artifact String
                                                      :status String
@@ -47,6 +51,8 @@
                      (map-schema String
                                  (fixed-keys-schema {:run-id String
                                                      :work-id String
+                                                     :persona-id String
+                                                     :persona-name String
                                                      :phase String
                                                      :status String
                                                      :message String
@@ -56,6 +62,8 @@
                     {String
                      (map-schema String
                                  (fixed-keys-schema {:role String
+                                                     :persona-id String
+                                                     :persona-name String
                                                      :phase String
                                                      :artifact String
                                                      :status String
@@ -69,6 +77,8 @@
                                                 *run-id
                                                 *work-id
                                                 *role
+                                                *persona-id
+                                                *persona-name
                                                 *phase
                                                 *artifact
                                                 *status
@@ -84,6 +94,8 @@
                          (termval {:event-type *event-type
                                    :work-id *work-id
                                    :role *role
+                                   :persona-id *persona-id
+                                   :persona-name *persona-name
                                    :phase *phase
                                    :artifact *artifact
                                    :status *status
@@ -94,6 +106,8 @@
       (local-transform> [(keypath *role *event-id)
                          (termval {:run-id *run-id
                                    :work-id *work-id
+                                   :persona-id *persona-id
+                                   :persona-name *persona-name
                                    :phase *phase
                                    :status *status
                                    :message *message
@@ -102,6 +116,8 @@
       (|hash *run-id)
       (local-transform> [(keypath *run-id *event-id)
                          (termval {:role *role
+                                   :persona-id *persona-id
+                                   :persona-name *persona-name
                                    :phase *phase
                                    :artifact *artifact
                                    :status *status

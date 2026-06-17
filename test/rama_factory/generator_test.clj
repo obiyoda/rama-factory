@@ -28,6 +28,7 @@
         (is (.exists (io/file (:root result) "devenv.nix")))
         (is (.exists (io/file (:root result) "deps.edn")))
         (is (.exists (io/file (:root result) "rama-factory.edn")))
+        (is (.exists (io/file (:root result) "factory/personas.edn")))
         (is (.exists (io/file (:root result) "factory/skills/rama-factory-build/SKILL.md")))
         (is (str/includes? (slurp (io/file (:root result) "deps.edn"))
                            "com.rpl/rama")))

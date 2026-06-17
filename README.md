@@ -18,6 +18,7 @@ The product direction is captured in:
 - [`docs/charter.md`](docs/charter.md) for the mission, principles, and economic strategy.
 - [`docs/roadmap.md`](docs/roadmap.md) for staged milestones.
 - [`factory/skills/rama-factory-build/`](factory/skills/rama-factory-build/) for the first repo-local agent skill pack.
+- [`factory/personas.edn`](factory/personas.edn) for named agent personas such as Snips and ArchitectAlice.
 - [`factory/extensions/auth.edn`](factory/extensions/auth.edn) for the first extension manifest draft.
 - [`factory/seeds/auth/`](factory/seeds/auth/) for the first copy-owned extension seed.
 - [`factory/seeds/factory-dashboard/`](factory/seeds/factory-dashboard/) for the flagship factory-floor dashboard seed.
@@ -94,6 +95,8 @@ clojure -M:factory validate
 clojure -M:factory simulate demo-bank-transfer
 clojure -M:factory swarm-plan
 clojure -M:factory swarm-config
+clojure -M:factory personas
+clojure -M:factory persona snips
 clojure -M:factory queue
 clojure -M:factory accept architect
 clojure -M:factory complete architect <handoff-id>
@@ -119,6 +122,7 @@ This PoC deliberately keeps the first useful core small:
 - It generates visible artifacts for every Rama development phase so skipped phases become obvious.
 - It treats devenv as the project entrypoint for shell tooling, tasks, processes, and tests.
 - It can render a SwarmForge-style role/window config and a git worktree plan from `factory/factory.edn`.
+- It defines named personas so humans can see who did the work, what skills they use, and how handoffs/events should be attributed.
 - It treats Zodiac as the default web runtime while keeping application code behind `rama-factory.web`.
 - It supports both hypermedia pages and JSON endpoints in the first dogfooded app.
 - It can generate a devenv-backed starter app.

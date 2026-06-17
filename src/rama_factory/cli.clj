@@ -5,11 +5,13 @@
             [rama-factory.handoff :as handoff]
             [rama-factory.io :as fio]
             [rama-factory.model :as model]
+            [rama-factory.persona :as persona]
             [rama-factory.swarm :as swarm]
             [rama-factory.workflow :as workflow]))
 
 (def default-factory "factory/factory.edn")
 (def default-challenge "factory/challenges/bank-transfer.edn")
+(def default-personas "factory/personas.edn")
 (def supported-seeds #{"auth" "factory-dashboard"})
 
 (declare usage)
@@ -17,7 +19,8 @@
 (defn load-inputs
   []
   {:factory (fio/read-edn default-factory)
-   :challenge (fio/read-edn default-challenge)})
+   :challenge (fio/read-edn default-challenge)
+   :personas (persona/load-personas default-personas)})
 
 (defn print-validation
   [validation]
@@ -29,8 +32,8 @@
 
 (defn validate-command
   []
-  (let [{:keys [factory challenge]} (load-inputs)]
-    (print-validation (model/validate factory challenge))))
+  (let [{:keys [factory challenge personas]} (load-inputs)]
+    (print-validation (model/validate factory challenge personas))))
 
 (defn simulate-command
   [run-id]
@@ -133,6 +136,19 @@
         (println "config:" (:config result)))
       (usage))))
 
+(defn personas-command
+  []
+  (let [{:keys [personas]} (load-inputs)]
+    (pprint/pprint (persona/summary personas))))
+
+(defn persona-command
+  [persona-id]
+  (let [{:keys [personas]} (load-inputs)
+        id (keyword persona-id)]
+    (if-let [found (persona/persona personas id)]
+      (pprint/pprint found)
+      (println "NO_PERSONA"))))
+
 (defn usage
   []
   (println (str/join
@@ -145,6 +161,8 @@
              "  clojure -M:factory simulate [run-id]"
              "  clojure -M:factory swarm-config"
              "  clojure -M:factory swarm-plan"
+             "  clojure -M:factory personas"
+             "  clojure -M:factory persona <persona-id>"
              "  clojure -M:factory queue"
              "  clojure -M:factory accept <role>"
              "  clojure -M:factory complete <role> <handoff-id>"])))
@@ -159,6 +177,10 @@
     "simulate" (simulate-command (or (second args) "demo-bank-transfer"))
     "swarm-config" (swarm-config-command)
     "swarm-plan" (swarm-plan-command)
+    "personas" (personas-command)
+    "persona" (if-let [id (second args)]
+                (persona-command id)
+                (usage))
     "queue" (queue-command)
     "accept" (if-let [role (second args)]
                (accept-command role)

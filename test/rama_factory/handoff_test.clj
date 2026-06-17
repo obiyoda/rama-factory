@@ -16,13 +16,17 @@
                        root
                        {:from :specifier
                         :to :coder
+                        :persona {:persona/id :snips
+                                  :persona/name "Snips"}
                         :priority 10
                         :type :artifact-handoff
                         :task "bank-transfer/phase-1"
                         :payload {:artifact "PLAN.md"}})]
         (testing "delivery writes recipient queue and sender audit"
           (is (= 1 (count (handoff/queue root :coder :new))))
-          (is (= 1 (count (handoff/queue root :specifier :sent)))))
+          (is (= 1 (count (handoff/queue root :specifier :sent))))
+          (is (= :snips (get-in (first (handoff/queue root :coder :new))
+                                [:persona :persona/id]))))
         (testing "accept moves the oldest task to in-process"
           (let [accepted (handoff/accept-next! root :coder)]
             (is (= (:id delivered) (:id accepted)))
@@ -35,4 +39,3 @@
               (is (= 1 (count (handoff/queue root :coder :completed))))))))
       (finally
         (fio/delete-tree! root)))))
-

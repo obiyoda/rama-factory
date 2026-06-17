@@ -30,3 +30,10 @@
     (is (str/includes? skill "references/roles.md"))
     (is (.exists (clojure.java.io/file
                   "factory/skills/rama-factory-build/references/extensions.md")))))
+
+(deftest named-personas-are-discoverable
+  (let [personas (:personas (fio/read-edn "factory/personas.edn"))
+        names (set (map :persona/name personas))]
+    (is (contains? names "Snips"))
+    (is (contains? names "ArchitectAlice"))
+    (is (every? :persona/skills personas))))

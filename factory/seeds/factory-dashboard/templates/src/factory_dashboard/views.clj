@@ -9,6 +9,7 @@
   (str "<tr>"
        "<td>" event-id "</td>"
        "<td>" (escape-html (:event-type event)) "</td>"
+       "<td>" (escape-html (:persona-name event)) "</td>"
        "<td>" (escape-html (:role event)) "</td>"
        "<td>" (escape-html (:phase event)) "</td>"
        "<td>" (escape-html (:status event)) "</td>"
@@ -33,7 +34,7 @@
                       (str "<li>" (name k) ": " v "</li>")))
          "</ul></section>"
          "<section><h2>Timeline</h2><table>"
-         "<thead><tr><th>ID</th><th>Event</th><th>Role</th><th>Phase</th><th>Status</th><th>Message</th></tr></thead>"
+         "<thead><tr><th>ID</th><th>Event</th><th>Persona</th><th>Role</th><th>Phase</th><th>Status</th><th>Message</th></tr></thead>"
          "<tbody>" (apply str (map event-row timeline)) "</tbody>"
          "</table></section>"
          "</main>")))

@@ -162,3 +162,47 @@ Exit criteria:
 - Developers can start a new app and pull in first-party seeds without a hosted
   service.
 - Seed updates are reviewable as source changes, not hidden dependency upgrades.
+
+## Milestone 9: Hosted Or Self-Hosted Factory Control Plane
+
+Goal: let one online Factory coordinate many projects, developers,
+stakeholders, agents, local machines, and cloud dev machines without making the
+hosted service responsible for arbitrary code execution.
+
+This milestone should come after the local project registry, seed labs, MCP
+tools, personas, and dashboard event model are useful on their own. The hosted
+Factory should extend the same model rather than replace it.
+
+- Run a persistent Factory dashboard for many projects.
+- Add organization, user, stakeholder, and agent identity.
+- Scope every work item, handoff, event, validation, approval, and artifact by
+  `project-id`.
+- Expose a hosted MCP gateway so agents can discover personas, claim work,
+  report progress, and complete handoffs.
+- Integrate with GitHub or GitLab for repos, branches, PRs, checks, review
+  comments, and merge status.
+- Let local developers connect their machine to the hosted Factory through a
+  CLI agent that reports events outbound.
+- Let cloud dev machines connect as project runners that clone repos, enter
+  `devenv shell`, run tests, produce previews, and push branches.
+- Keep code execution in isolated runners, cloud dev machines, sandboxes, or
+  trusted local machines; the hosted web process coordinates work but does not
+  directly run arbitrary project code.
+- Add stakeholder approvals and review gates as first-class events.
+- Store project timelines, runner status, validation output, preview links,
+  screenshots, PR metadata, approvals, and blocker state in Rama-backed
+  projections.
+
+Exit criteria:
+
+- A hosted or self-hosted Factory can register multiple projects and show their
+  queue, handoffs, validations, PRs, approvals, and agent activity.
+- A local developer can run `rama connect --factory <url> --project <id>` and
+  claim, validate, checkpoint, and complete project work from their own
+  machine.
+- A cloud dev runner can claim project-scoped work, perform a validated branch
+  change, and report commit, test, preview, and PR events back to the Factory.
+- Stakeholders can create work, approve milestones, and see project status
+  without needing access to the developer's local machine.
+- The same event model works for local-only, self-hosted, and hosted Factory
+  deployments.

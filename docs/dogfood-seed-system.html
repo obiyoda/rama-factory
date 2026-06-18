@@ -229,6 +229,79 @@
         grid-template-columns: repeat(4, minmax(0, 1fr));
       }
 
+      .project-map {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .factory-node,
+      .project-node,
+      .support-node {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        padding: 16px;
+      }
+
+      .factory-node {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px;
+        align-items: center;
+        border-left: 6px solid var(--green);
+      }
+
+      .factory-node strong,
+      .project-node strong,
+      .support-node strong {
+        display: block;
+        margin-bottom: 7px;
+      }
+
+      .factory-node p,
+      .project-node span,
+      .support-node span {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .project-node {
+        min-height: 136px;
+        border-top: 5px solid var(--blue);
+      }
+
+      .support-node {
+        min-height: 122px;
+        border-top: 5px solid var(--amber);
+      }
+
+      .scope-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .scope-item {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        padding: 12px;
+      }
+
+      .scope-item strong {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
+
+      .scope-item span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
       .card {
         min-height: 168px;
         border: 1px solid var(--line);
@@ -490,7 +563,10 @@
         .section-head,
         .grid-2,
         .grid-3,
-        .grid-4 {
+        .grid-4,
+        .project-map,
+        .factory-node,
+        .scope-strip {
           grid-template-columns: 1fr;
         }
 
@@ -553,6 +629,7 @@
         </div>
         <div class="status-row" aria-label="Plan status">
           <span class="pill">Open-source first</span>
+          <span class="pill">Multi-project Factory</span>
           <span class="pill">Copy-owned seeds</span>
           <span class="pill">Commit evidence</span>
         </div>
@@ -568,7 +645,8 @@
             accidental untracked folders beside the framework code.
           </p>
           <div class="hero-actions">
-            <a class="button primary" href="#lifecycle">See lifecycle</a>
+            <a class="button primary" href="#multi-project">Multi-project model</a>
+            <a class="button secondary" href="#lifecycle">See lifecycle</a>
             <a class="button secondary" href="#commit-policy">Commit policy</a>
             <a class="button secondary" href="#commands">Command plan</a>
           </div>
@@ -618,6 +696,83 @@
             <path d="M450 210 C535 210 590 246 590 308" stroke="#59645f" stroke-width="2" fill="none" marker-end="url(#arrow)"></path>
             <path d="M110 308 C104 202 70 142 110 106" stroke="#59645f" stroke-width="2" fill="none" marker-end="url(#arrow)"></path>
           </svg>
+        </div>
+      </section>
+
+      <section class="section" id="multi-project">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Operating Model</p>
+            <h2>One Factory control plane can run many project workpieces.</h2>
+          </div>
+          <p>
+            The Factory is the durable coordinator. Projects are scoped workpieces:
+            labs, examples, or real business apps. Every event, handoff, validation,
+            port, and agent assignment carries a <code>project-id</code>.
+          </p>
+        </div>
+
+        <div class="project-map" aria-label="One Factory managing many projects">
+          <div class="factory-node">
+            <div>
+              <strong>Rama Factory control plane</strong>
+              <p>Owns the project registry, seed registry, personas, MCP tools, work queues, validation history, and dashboard projections.</p>
+            </div>
+            <span class="pill">partition by project-id</span>
+          </div>
+
+          <div class="project-node">
+            <strong>factory-floor</strong>
+            <span>Dogfood seed lab under <code>.rama-workspaces/factory-floor</code>. Proves the dashboard seed and records commit evidence.</span>
+          </div>
+          <div class="project-node">
+            <strong>invoice-app</strong>
+            <span>Business app or lab with copied auth and billing seeds. Owns its source and local git history.</span>
+          </div>
+          <div class="project-node">
+            <strong>crm-app</strong>
+            <span>Another generated Rama app with its own devenv ports, validations, handoffs, and agent checkpoints.</span>
+          </div>
+          <div class="project-node">
+            <strong>external repo</strong>
+            <span>A sibling repo can still be managed by the Factory through a project record and MCP-visible work queue.</span>
+          </div>
+
+          <div class="support-node">
+            <strong>Seed registry</strong>
+            <span>Tracks installable seeds, versions, source paths, and promotion candidates across all projects.</span>
+          </div>
+          <div class="support-node">
+            <strong>Agent personas</strong>
+            <span>Snips, ArchitectAlice, and custom personas can be assigned per project and per role.</span>
+          </div>
+          <div class="support-node">
+            <strong>Validation runners</strong>
+            <span>Run project-specific commands such as tests, asset builds, Rama checks, and seed diff gates.</span>
+          </div>
+          <div class="support-node">
+            <strong>Dashboard views</strong>
+            <span>Show project timelines, handoffs, artifacts, failures, and promotions from shared Rama state.</span>
+          </div>
+        </div>
+
+        <div class="scope-strip" aria-label="Project scoping rules">
+          <div class="scope-item">
+            <strong>Work queue</strong>
+            <span><code>:project/id</code> scopes claim, complete, and handoff events.</span>
+          </div>
+          <div class="scope-item">
+            <strong>Runtime ports</strong>
+            <span>Each active project gets explicit web and asset ports to avoid collisions.</span>
+          </div>
+          <div class="scope-item">
+            <strong>Git history</strong>
+            <span>The Factory records commit ids, but each project owns its own source history.</span>
+          </div>
+          <div class="scope-item">
+            <strong>Rama state</strong>
+            <span>PStates such as runs, events, validations, and seed installs route by project.</span>
+          </div>
         </div>
       </section>
 
@@ -774,6 +929,7 @@
         <div class="grid-2">
           <pre class="repo-tree">rama-factory/
   factory/
+    projects.edn
     seeds/
       factory-dashboard/
         seed.edn
@@ -791,7 +947,7 @@
             <h3>Lab manifest shape</h3>
             <p><code>factory/seed-labs/factory-floor.edn</code> should be plain data so agents, tests, docs, and future Rama dashboards can read it.</p>
             <ul>
-              <li><code>:lab/id</code>, <code>:lab/title</code>, and <code>:lab/workspace</code></li>
+              <li><code>:lab/id</code>, <code>:project/id</code>, <code>:lab/title</code>, and <code>:lab/workspace</code></li>
               <li><code>:app/name</code> and starter generator version</li>
               <li><code>:seeds</code> with source paths and versions</li>
               <li><code>:validation/commands</code> for build and tests</li>
@@ -799,6 +955,43 @@
             </ul>
           </article>
         </div>
+
+        <table class="decision-table" style="margin-top: 18px;">
+          <thead>
+            <tr>
+              <th>Registry Field</th>
+              <th>Example</th>
+              <th>Why It Exists</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>:project/id</code></td>
+              <td><code>:invoice-app</code></td>
+              <td>Primary scope key for events, PStates, dashboard filters, queues, and MCP calls.</td>
+            </tr>
+            <tr>
+              <td><code>:project/repo</code></td>
+              <td><code>"../invoice-app"</code></td>
+              <td>Points to a separate business repo, active lab workspace, or curated example path.</td>
+            </tr>
+            <tr>
+              <td><code>:project/type</code></td>
+              <td><code>:seed-lab</code>, <code>:example</code>, <code>:business-app</code></td>
+              <td>Controls commit policy, visibility, and whether promotion back to a seed is expected.</td>
+            </tr>
+            <tr>
+              <td><code>:project/ports</code></td>
+              <td><code>{:web 3101 :assets 5174}</code></td>
+              <td>Lets one Factory supervise or validate several projects without port collisions.</td>
+            </tr>
+            <tr>
+              <td><code>:project/seeds</code></td>
+              <td><code>[:auth :factory-dashboard]</code></td>
+              <td>Records which copied seeds are installed, diffable, and eligible for reseed or promotion workflows.</td>
+            </tr>
+          </tbody>
+        </table>
       </section>
 
       <section class="section" id="commands">
@@ -808,16 +1001,32 @@
             <h2>Make dogfooding an explicit workflow.</h2>
           </div>
           <p>
-            These commands are the likely next slice. They make lab generation,
-            checkpointing, validation, diffing, and promotion repeatable.
+            These commands are the likely next slice. Project commands create the
+            multi-project control plane. Lab commands make generation, checkpointing,
+            validation, diffing, and promotion repeatable.
           </p>
+        </div>
+
+        <div class="grid-3" style="margin-bottom: 18px;">
+          <article class="card accent-green">
+            <h3><code>rama project new invoice-app</code></h3>
+            <p>Registers a project with repo path, type, ports, default branch, installed seeds, and allowed personas.</p>
+          </article>
+          <article class="card accent-blue">
+            <h3><code>rama project queue invoice-app</code></h3>
+            <p>Creates project-scoped work so agents can claim, complete, and hand off tasks without mixing projects.</p>
+          </article>
+          <article class="card accent-amber">
+            <h3><code>rama project validate invoice-app</code></h3>
+            <p>Runs that project's validation commands and records results back into the Factory event stream.</p>
+          </article>
         </div>
 
         <div class="timeline">
           <div class="step">
             <div class="step-num">1</div>
             <div class="step-main">
-              <h3><code>rama lab new factory-floor --seed factory-dashboard</code></h3>
+              <h3><code>rama lab new factory-floor --project factory-floor --seed factory-dashboard</code></h3>
               <p>Creates a lab manifest, generates the app under <code>.rama-workspaces/</code>, installs the seed, initializes a lab git repo, and creates the baseline commit.</p>
             </div>
             <div class="step-side">Output: manifest + clean generated app</div>
@@ -880,7 +1089,7 @@
         <div class="grid-3">
           <article class="card accent-blue">
             <h3>Recommended now</h3>
-            <p>Move or regenerate it under <code>.rama-workspaces/factory-floor</code>, initialize a lab git repo, and commit a baseline after pnpm regeneration.</p>
+            <p>Register it in <code>factory/projects.edn</code>, regenerate it under <code>.rama-workspaces/factory-floor</code>, initialize a lab git repo, and commit a baseline after pnpm regeneration.</p>
           </article>
           <article class="card accent-green">
             <h3>Promote later</h3>
@@ -898,9 +1107,10 @@
           <div>
             <h2>Decision</h2>
             <p>
-              Build seed labs as part of the seed system. Keep active generated apps
-              outside the root tree, but give them commit history, validation records,
-              agent attribution, and an explicit promotion path back into seeds.
+              Build a multi-project Factory control plane, then build seed labs as
+              one project type inside it. Keep active generated apps outside the root
+              tree, but give them commit history, validation records, agent attribution,
+              project-scoped events, and an explicit promotion path back into seeds.
             </p>
           </div>
           <a class="button primary" href="#commands">Next slice</a>

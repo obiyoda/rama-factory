@@ -29,7 +29,9 @@
 (defn write-edn!
   [path value]
   (ensure-parent! path)
-  (spit path (with-out-str (pprint/pprint value)))
+  (spit path (with-out-str
+               (binding [*print-namespace-maps* false]
+                 (pprint/pprint value))))
   path)
 
 (defn write-text!

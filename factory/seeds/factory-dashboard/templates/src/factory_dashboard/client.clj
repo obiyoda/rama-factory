@@ -132,6 +132,7 @@
 (def demo-events
   [{:event-id "evt-001"
     :event-type :run-created
+    :project-id "factory-floor"
     :run-id "demo-auth-run"
     :work-id "work-auth"
     :role "specifier"
@@ -143,6 +144,7 @@
     :occurred-at 1}
    {:event-id "evt-002"
     :event-type :handoff-created
+    :project-id "factory-floor"
     :run-id "demo-auth-run"
     :work-id "work-auth"
     :role "architect"
@@ -154,6 +156,7 @@
     :occurred-at 2}
    {:event-id "evt-003"
     :event-type :handoff-accepted
+    :project-id "factory-floor"
     :run-id "demo-auth-run"
     :work-id "work-auth"
     :role "coder"
@@ -165,6 +168,7 @@
     :occurred-at 3}
    {:event-id "evt-004"
     :event-type :artifact-written
+    :project-id "factory-floor"
     :run-id "demo-auth-run"
     :work-id "work-auth"
     :role "coder"
@@ -177,6 +181,7 @@
     :occurred-at 4}
    {:event-id "evt-005"
     :event-type :validation-passed
+    :project-id "factory-floor"
     :run-id "demo-auth-run"
     :work-id "work-auth"
     :role "refactorer"

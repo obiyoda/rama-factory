@@ -37,3 +37,11 @@
     (is (contains? names "Snips"))
     (is (contains? names "ArchitectAlice"))
     (is (every? :persona/skills personas))))
+
+(deftest factory-floor-project-lab-is-discoverable
+  (let [projects (:projects (fio/read-edn "factory/projects.edn"))
+        lab (fio/read-edn "factory/seed-labs/factory-floor.edn")]
+    (is (some #(= :factory-floor (:project/id %)) projects))
+    (is (= :factory-floor (:lab/id lab)))
+    (is (= :factory-floor (:project/id lab)))
+    (is (= ".rama-workspaces/factory-floor" (:lab/workspace lab)))))

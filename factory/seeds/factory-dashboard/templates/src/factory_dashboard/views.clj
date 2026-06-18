@@ -50,6 +50,7 @@
   (str "<tr>"
        "<td class=\"font-mono text-xs\">" (escape-html event-id) "</td>"
        "<td>" (badge (:event-type event)) "</td>"
+       "<td class=\"font-mono text-xs\">" (escape-html (:project-id event)) "</td>"
        "<td class=\"font-medium\">" (escape-html (:persona-name event)) "</td>"
        "<td>" (escape-html (:role event)) "</td>"
        "<td>" (escape-html (:phase event)) "</td>"
@@ -99,7 +100,7 @@
          "<section class=\"card\">"
          "<header><h2>Timeline</h2><p>Named agent activity ordered by occurrence.</p></header>"
          "<section class=\"overflow-x-auto px-0\"><table class=\"table\">"
-         "<thead><tr><th>ID</th><th>Event</th><th>Persona</th><th>Role</th><th>Phase</th><th>Status</th><th>Message</th></tr></thead>"
+         "<thead><tr><th>ID</th><th>Event</th><th>Project</th><th>Persona</th><th>Role</th><th>Phase</th><th>Status</th><th>Message</th></tr></thead>"
          "<tbody>" (apply str (map event-row timeline)) "</tbody>"
          "</table></section></section>"
          "</main></body></html>")))

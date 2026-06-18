@@ -19,6 +19,9 @@ For local development, MCP tools append durable EDN events under
 local Rama dashboard module and fall back to demo data when the event log is
 empty.
 
+Events include `:project-id` so one Factory can observe multiple project
+workpieces without mixing their handoffs, validations, artifacts, and timelines.
+
 The dashboard route uses Basecoat UI as the default factory screen layer.
 Basecoat is compiled through the app's Vite/Tailwind asset pipeline, and the
 view uses plain HTML classes such as `card`, `badge`, `btn-outline`, and

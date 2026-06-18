@@ -57,6 +57,9 @@ devenv tasks run rama:simulate
 devenv tasks run swarm:plan
 devenv tasks run swarm:config
 devenv tasks run assets:build
+clojure -M:factory project-list
+clojure -M:factory lab-new factory-floor --seed factory-dashboard
+clojure -M:factory lab-validate factory-floor
 clojure -M:mcp
 ```
 
@@ -77,9 +80,9 @@ devenv test
 Factory-floor dashboard demo:
 
 ```bash
-clojure -M:factory new factory-floor
-clojure -M:factory add factory-dashboard --from factory/seeds/factory-dashboard --target factory-floor
-cd factory-floor
+clojure -M:factory lab-new factory-floor --seed factory-dashboard
+clojure -M:factory lab-validate factory-floor
+cd .rama-workspaces/factory-floor
 devenv up
 ```
 
@@ -101,6 +104,12 @@ clojure -M:factory make:extension auth
 clojure -M:factory make:extension factory-dashboard
 clojure -M:factory add auth --from <seed-path> --target <app-dir>
 clojure -M:factory add factory-dashboard --from <seed-path> --target <app-dir>
+clojure -M:factory project-list
+clojure -M:factory project-show factory-floor
+clojure -M:factory project-new invoice-app --type seed-lab --seed auth
+clojure -M:factory project-validate
+clojure -M:factory lab-new factory-floor --seed factory-dashboard
+clojure -M:factory lab-validate factory-floor
 clojure -M:factory validate
 clojure -M:factory simulate demo-bank-transfer
 clojure -M:factory swarm-plan
@@ -118,7 +127,7 @@ clojure -M:docs
 clojure -M:test
 ```
 
-`simulate` writes generated artifacts under `runs/<run-id>/` and handoff queue state under `.rama-factory/`. Both are ignored by git.
+`simulate` writes generated artifacts under `runs/<run-id>/` and handoff queue state under `.rama-factory/`. Both are ignored by git. Seed labs generate active dogfood apps under `.rama-workspaces/`, which is also ignored by the factory repo; the generated lab app can keep its own git history there.
 
 `clojure -M:docs` starts the dogfooded docs app directly. Pass a port to override it:
 
@@ -150,6 +159,8 @@ The first MCP tools expose the core control-plane loop:
 - `factory.get_persona`
 - `factory.list_skills`
 - `factory.get_skill`
+- `factory.list_projects`
+- `factory.get_project`
 - `factory.queue_summary`
 - `factory.create_work`
 - `factory.claim_next_work`
@@ -172,8 +183,9 @@ This PoC deliberately keeps the first useful core small:
 - It can generate a devenv-backed starter app.
 - It can install the auth extension as shadcn-style copied source that the target app owns.
 - It can install a Rama-backed factory dashboard seed that shows agent/factory events, handoffs, artifacts, validation gates, and timelines.
+- It has a local project registry and seed-lab workflow so one Factory can manage multiple project workpieces.
 - It exposes a local stdio MCP server so MCP-capable agents can discover personas, load skills, validate the factory, and move work through durable handoff queues.
-- MCP create/claim/complete calls append durable events under `.rama-factory/events`, which the factory dashboard seed can ingest into its Rama module.
+- MCP create/claim/complete calls append project-scoped durable events under `.rama-factory/events`, which the factory dashboard seed can ingest into its Rama module.
 - Factory-facing UI screens use Basecoat UI defaults through a Vite/Tailwind asset pipeline: plain HTML, shadcn-style classes, and no React requirement.
 
-The next practical increment is adding `swarm:prepare` so role worktrees can operate on starter apps and seeds.
+The next practical increment is adding `swarm:prepare` so role worktrees can operate on registered projects and seed labs.

@@ -1,0 +1,10 @@
+{:projects
+ [{:project/seeds [:factory-dashboard],
+   :project/default-branch "main",
+   :project/ports {:web 3101, :assets 5174},
+   :project/workspace ".rama-workspaces/factory-floor",
+   :project/type :seed-lab,
+   :project/name "Factory Floor",
+   :project/id :factory-floor,
+   :project/personas [:snips :architect-alice],
+   :project/status :active}]}

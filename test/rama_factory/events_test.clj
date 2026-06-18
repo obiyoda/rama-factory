@@ -15,6 +15,7 @@
                          root
                          {:event-id "evt-1"
                           :event-type :handoff-created
+                          :project-id "factory-floor"
                           :run-id "run-a"
                           :work-id "work-a"
                           :role "coder"
@@ -39,6 +40,7 @@
                         :occurred-at 2})]
         (testing "the existing event wins for stable event ids"
           (is (= "queued" (:status duplicate)))
+          (is (= "factory-floor" (:project-id duplicate)))
           (is (= (:file first-event) (:file duplicate))))
         (testing "events are listed in occurrence order"
           (events/append! root {:event-id "evt-2"

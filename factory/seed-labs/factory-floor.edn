@@ -1,0 +1,12 @@
+{:lab/id :factory-floor,
+ :seeds
+ [{:seed/id :factory-dashboard,
+   :seed/source "factory/seeds/factory-dashboard"}],
+ :lab/reports-dir ".rama-factory/labs/factory-floor",
+ :app/name "factory-floor",
+ :lab/workspace ".rama-workspaces/factory-floor",
+ :lab/title "Factory Floor Dogfood Lab",
+ :commits [],
+ :project/id :factory-floor,
+ :validation/commands
+ ["devenv tasks run assets:build" "devenv shell -- clojure -M:test"]}

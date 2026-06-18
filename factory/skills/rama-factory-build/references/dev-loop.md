@@ -24,6 +24,9 @@ Use these as the default local workflow:
 devenv up
 devenv tasks run assets:build
 pnpm run assets:dev
+clojure -M:factory project-list
+clojure -M:factory project-validate
+clojure -M:factory lab-validate factory-floor
 devenv shell -- clojure -M:test
 ```
 
@@ -39,6 +42,10 @@ from `http://localhost:5173`.
 
 Use pnpm for JavaScript dependencies. `devenv` includes `pkgs.pnpm`, generated
 apps include `pnpm-lock.yaml`, and asset tasks use frozen pnpm installs.
+
+Use `factory/projects.edn` and `factory/seed-labs/*.edn` for dogfooding generated
+apps. Active lab apps belong under ignored `.rama-workspaces/`, not at the
+factory repo root.
 
 ## UI Defaults
 

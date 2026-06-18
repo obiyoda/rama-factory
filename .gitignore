@@ -1,4 +1,5 @@
 .rama-factory/
+.rama-workspaces/
 runs/
 .cpcache/
 .devenv/

@@ -6,6 +6,7 @@ Required event fields:
 
 - `:event-id`
 - `:event-type`
+- `:project-id`
 - `:run-id`
 - `:work-id`
 - `:role`
@@ -20,7 +21,7 @@ Required event fields:
 Use content-addressed or UUID-derived ids for concurrent agent events. Avoid
 sequential ids when multiple agents or worktrees can write independently.
 
-The local MCP adapter writes durable EDN events under `.rama-factory/events`.
+The local MCP adapter writes durable project-scoped EDN events under `.rama-factory/events`.
 The dashboard ingests those files into the Rama module before rendering the
 factory floor.
 

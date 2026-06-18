@@ -50,6 +50,8 @@ as accidental untracked directories at the factory repo root. The seed system
 should grow a lab layer:
 
 - `factory/seeds/<seed>` remains the tracked source package.
+- `factory/projects.edn` registers managed project workpieces and their ports,
+  paths, installed seeds, personas, and status.
 - `factory/seed-labs/<lab>.edn` describes a dogfood scenario, source seeds,
   validation commands, and commit evidence.
 - `.rama-workspaces/<lab>` is ignored by the factory repo and can be a generated

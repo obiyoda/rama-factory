@@ -4,12 +4,13 @@
   (:require [com.rpl.rama.aggs :as aggs]))
 
 (defrecord FactoryEvent
-  [event-id event-type run-id work-id role persona-id persona-name phase artifact status message occurred-at])
+  [event-id event-type project-id run-id work-id role persona-id persona-name phase artifact status message occurred-at])
 
 (defn normalize-event
-  [{:keys [event-id event-type run-id work-id role persona-id persona-name phase artifact status message occurred-at]}]
+  [{:keys [event-id event-type project-id run-id work-id role persona-id persona-name phase artifact status message occurred-at]}]
   (->FactoryEvent (or event-id (str (java.util.UUID/randomUUID)))
                   (name event-type)
+                  (or project-id "local")
                   (or run-id "default-run")
                   (or work-id "default-work")
                   (or role "system")
@@ -29,6 +30,7 @@
     (declare-pstate s $$runs
                     {String
                      (fixed-keys-schema {:run-id String
+                                         :project-id String
                                          :status String
                                          :message String
                                          :updated-at Long})})
@@ -36,6 +38,7 @@
                     {String
                      (map-schema String
                                  (fixed-keys-schema {:event-type String
+                                                     :project-id String
                                                      :work-id String
                                                      :role String
                                                      :persona-id String
@@ -50,6 +53,7 @@
                     {String
                      (map-schema String
                                  (fixed-keys-schema {:run-id String
+                                                     :project-id String
                                                      :work-id String
                                                      :persona-id String
                                                      :persona-name String
@@ -62,6 +66,7 @@
                     {String
                      (map-schema String
                                  (fixed-keys-schema {:role String
+                                                     :project-id String
                                                      :persona-id String
                                                      :persona-name String
                                                      :phase String
@@ -74,6 +79,7 @@
     (<<sources s
       (source> *factory-events-depot :> {:keys [*event-id
                                                 *event-type
+                                                *project-id
                                                 *run-id
                                                 *work-id
                                                 *role
@@ -86,12 +92,14 @@
                                                 *occurred-at]})
       (local-transform> [(keypath *run-id)
                          (multi-path [:run-id (termval *run-id)]
+                                     [:project-id (termval *project-id)]
                                      [:status (termval *status)]
                                      [:message (termval *message)]
                                      [:updated-at (termval *occurred-at)])]
                         $$runs)
       (local-transform> [(keypath *run-id *event-id)
                          (termval {:event-type *event-type
+                                   :project-id *project-id
                                    :work-id *work-id
                                    :role *role
                                    :persona-id *persona-id
@@ -105,6 +113,7 @@
       (|hash *role)
       (local-transform> [(keypath *role *event-id)
                          (termval {:run-id *run-id
+                                   :project-id *project-id
                                    :work-id *work-id
                                    :persona-id *persona-id
                                    :persona-name *persona-name
@@ -116,6 +125,7 @@
       (|hash *run-id)
       (local-transform> [(keypath *run-id *event-id)
                          (termval {:role *role
+                                   :project-id *project-id
                                    :persona-id *persona-id
                                    :persona-name *persona-name
                                    :phase *phase

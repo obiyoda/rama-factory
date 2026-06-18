@@ -3,6 +3,7 @@
             [rama-factory.io :as fio]))
 
 (def default-run-id "mcp-local")
+(def default-project-id "local")
 
 (defn now-ms
   []
@@ -28,6 +29,10 @@
   [event]
   (let [occurred-at (or (value-at event :occurred-at) (now-ms))
         event-type (or (value-at event :event-type) :factory-event)
+        project-id (or (value-at event :project-id)
+                       (value-at event :project_id)
+                       (value-at event :project)
+                       default-project-id)
         run-id (or (value-at event :run-id) default-run-id)
         work-id (or (value-at event :work-id) run-id)
         role (or (value-at event :role) "system")
@@ -41,6 +46,7 @@
                      (str (name (keyword event-type)) "-" work-id "-" occurred-at))]
     {:event-id (str event-id)
      :event-type (keyword event-type)
+     :project-id (str project-id)
      :run-id (str run-id)
      :work-id (str work-id)
      :role (str role)

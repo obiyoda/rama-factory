@@ -8,6 +8,7 @@
             [rama-factory.mcp-test]
             [rama-factory.model-test]
             [rama-factory.product-spine-test]
+            [rama-factory.projects-test]
             [rama-factory.swarm-test]
             [rama-factory.workflow-test]))
 
@@ -21,6 +22,7 @@
                               'rama-factory.model-test
                               'rama-factory.mcp-test
                               'rama-factory.product-spine-test
+                              'rama-factory.projects-test
                               'rama-factory.swarm-test
                               'rama-factory.handoff-test
                               'rama-factory.workflow-test)]

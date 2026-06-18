@@ -7,7 +7,8 @@
             [rama-factory.handoff :as handoff]
             [rama-factory.io :as fio]
             [rama-factory.model :as model]
-            [rama-factory.persona :as persona]))
+            [rama-factory.persona :as persona]
+            [rama-factory.projects :as projects]))
 
 (def protocol-version "2025-11-25")
 
@@ -17,7 +18,8 @@
 (def default-paths
   {:factory-path "factory/factory.edn"
    :challenge-path "factory/challenges/bank-transfer.edn"
-   :personas-path "factory/personas.edn"})
+   :personas-path "factory/personas.edn"
+   :projects-path projects/default-projects-path})
 
 (defn- read-edn-if-exists
   [path fallback]
@@ -50,7 +52,7 @@
 (defn load-context
   ([] (load-context {}))
   ([opts]
-   (let [{:keys [factory-path challenge-path personas-path]}
+   (let [{:keys [factory-path challenge-path personas-path projects-path]}
          (merge default-paths opts)
          factory (read-edn-if-exists factory-path {})
          state-dir (or (get-in factory [:workflow :state-dir])
@@ -58,6 +60,7 @@
      {:factory factory
       :challenge (read-edn-if-exists challenge-path {})
       :personas (:personas (read-edn-if-exists personas-path {:personas []}))
+      :projects (read-edn-if-exists projects-path {:projects []})
       :state-dir state-dir
       :skills (existing-skills)})))
 
@@ -135,6 +138,18 @@
                                         "description" "Skill id, for example rama-factory-build."}}
                    "required" ["id"]
                    "additionalProperties" false}}
+   {"name" "factory.list_projects"
+    "title" "List Factory Projects"
+    "description" "List registered project workpieces managed by this Factory."
+    "inputSchema" (no-args-schema)}
+   {"name" "factory.get_project"
+    "title" "Get Factory Project"
+    "description" "Return one registered project workpiece by project id."
+    "inputSchema" {"type" "object"
+                   "properties" {"id" {"type" "string"
+                                        "description" "Project id, for example factory-floor."}}
+                   "required" ["id"]
+                   "additionalProperties" false}}
    {"name" "factory.queue_summary"
     "title" "Queue Summary"
     "description" "Return durable handoff queue counts by role and state."
@@ -153,6 +168,8 @@
                                              "description" "Lower numbers are claimed first."}
                                  "persona_id" {"type" "string"
                                                "description" "Optional persona creating the work."}
+                                 "project_id" {"type" "string"
+                                               "description" "Optional project id used to scope work, events, and dashboard views."}
                                  "payload" {"type" "object"
                                             "description" "Optional structured task payload."}}
                    "required" ["from" "to" "task"]
@@ -243,7 +260,10 @@
   [{:keys [id task payload persona]} role]
   (let [payload (or payload {})
         persona-fields (persona-event-fields persona)]
-    (merge {:run-id (or (payload-value payload :run-id)
+    (merge {:project-id (or (payload-value payload :project-id)
+                            (payload-value payload :project_id)
+                            events/default-project-id)
+            :run-id (or (payload-value payload :run-id)
                         events/default-run-id)
             :work-id (or (payload-value payload :work-id) id)
             :role (name role)
@@ -328,6 +348,20 @@
                        :known-skills (mapv :id (:skills ctx))})))
     (assoc skill :content (slurp (:path skill)))))
 
+(defn- list-projects
+  [ctx _args]
+  {:projects (projects/project-summary (:projects ctx))})
+
+(defn- get-project
+  [ctx args]
+  (let [id (required-arg args "id")]
+    (if-let [project (projects/project (:projects ctx) id)]
+      {:project project}
+      (throw (ex-info "Unknown factory project."
+                      {:project-id id
+                       :known-projects (mapv (comp name :project/id)
+                                             (projects/projects (:projects ctx)))})))))
+
 (defn- queue-summary
   [ctx _args]
   (ensure-handoff-state! ctx)
@@ -348,7 +382,9 @@
   (let [from (require-role! ctx (required-arg args "from"))
         to (require-role! ctx (required-arg args "to"))
         persona (persona-ref ctx (get args "persona_id"))
-        payload (or (get args "payload") {})]
+        payload (cond-> (or (get args "payload") {})
+                  (get args "project_id")
+                  (assoc :project-id (get args "project_id")))]
     (ensure-handoff-state! ctx)
     (let [handoff (handoff/deliver!
                    (:state-dir ctx)
@@ -409,6 +445,8 @@
    "factory.get_persona" get-persona
    "factory.list_skills" list-skills
    "factory.get_skill" get-skill
+   "factory.list_projects" list-projects
+   "factory.get_project" get-project
    "factory.queue_summary" queue-summary
    "factory.create_work" create-work
    "factory.claim_next_work" claim-next-work
